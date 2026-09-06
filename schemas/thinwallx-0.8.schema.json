@@ -1,0 +1,526 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ThinWallX 0.8",
+  "description": "Structural schema. Canonical binary64, positive values, reference integrity, topology and peak consistency require the Python semantic validator.",
+  "type": "object",
+  "properties": {
+    "format": {
+      "const": "thinwallx"
+    },
+    "schema_version": {
+      "const": "0.8"
+    },
+    "number_encoding": {
+      "const": "float64-hex"
+    },
+    "kind": {
+      "enum": [
+        "section",
+        "applied_loads",
+        "stress_result"
+      ]
+    },
+    "units": {
+      "$ref": "#/$defs/units"
+    },
+    "data": {}
+  },
+  "required": [
+    "format",
+    "schema_version",
+    "number_encoding",
+    "kind",
+    "units",
+    "data"
+  ],
+  "additionalProperties": false,
+  "oneOf": [
+    {
+      "properties": {
+        "kind": {
+          "const": "section"
+        },
+        "data": {
+          "$ref": "#/$defs/section"
+        }
+      }
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "applied_loads"
+        },
+        "data": {
+          "$ref": "#/$defs/loads"
+        }
+      }
+    },
+    {
+      "properties": {
+        "kind": {
+          "const": "stress_result"
+        },
+        "data": {
+          "$ref": "#/$defs/result"
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "f64": {
+      "type": "object",
+      "properties": {
+        "f64": {
+          "type": "string",
+          "pattern": "^-?0x(?:0\\.0p\\+0|[01]\\.[0-9a-f]{13}p[+-][0-9]+)$"
+        }
+      },
+      "required": [
+        "f64"
+      ],
+      "additionalProperties": false
+    },
+    "units": {
+      "type": "object",
+      "properties": {
+        "length": {
+          "enum": [
+            "m",
+            "mm",
+            "cm",
+            "in",
+            "ft",
+            "unspecified"
+          ]
+        },
+        "force": {
+          "enum": [
+            "N",
+            "kN",
+            "lbf",
+            "unspecified"
+          ]
+        }
+      },
+      "required": [
+        "length",
+        "force"
+      ],
+      "additionalProperties": false
+    },
+    "id": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "none"
+            }
+          },
+          "required": [
+            "type"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "str"
+            },
+            "value": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "type",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "int"
+            },
+            "value": {
+              "type": "string",
+              "pattern": "^(0|-?[1-9][0-9]*)$"
+            }
+          },
+          "required": [
+            "type",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "bool"
+            },
+            "value": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "type",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "float"
+            },
+            "value": {
+              "$ref": "#/$defs/f64"
+            }
+          },
+          "required": [
+            "type",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "type": {
+              "const": "tuple"
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/id"
+              },
+              "minItems": 0
+            }
+          },
+          "required": [
+            "type",
+            "items"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "node": {
+      "type": "object",
+      "properties": {
+        "ref": {
+          "type": "string",
+          "minLength": 1
+        },
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "x": {
+          "$ref": "#/$defs/f64"
+        },
+        "y": {
+          "$ref": "#/$defs/f64"
+        }
+      },
+      "required": [
+        "ref",
+        "id",
+        "x",
+        "y"
+      ],
+      "additionalProperties": false
+    },
+    "segment": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "p1": {
+          "type": "string",
+          "minLength": 1
+        },
+        "p2": {
+          "type": "string",
+          "minLength": 1
+        },
+        "t": {
+          "$ref": "#/$defs/f64"
+        }
+      },
+      "required": [
+        "id",
+        "p1",
+        "p2",
+        "t"
+      ],
+      "additionalProperties": false
+    },
+    "section": {
+      "type": "object",
+      "properties": {
+        "class": {
+          "enum": [
+            "Section",
+            "ClosedSection",
+            "MixedSection"
+          ]
+        },
+        "node_tolerance": {
+          "$ref": "#/$defs/f64"
+        },
+        "safety_factor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/f64"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/node"
+          },
+          "minItems": 2
+        },
+        "segments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/segment"
+          },
+          "minItems": 1
+        }
+      },
+      "required": [
+        "class",
+        "node_tolerance",
+        "safety_factor",
+        "nodes",
+        "segments"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "class": {
+                "const": "Section"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "safety_factor": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "safety_factor": {
+                "$ref": "#/$defs/f64"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "loads": {
+      "type": "object",
+      "properties": {
+        "N": {
+          "$ref": "#/$defs/f64"
+        },
+        "Vx": {
+          "$ref": "#/$defs/f64"
+        },
+        "Vy": {
+          "$ref": "#/$defs/f64"
+        },
+        "Mx": {
+          "$ref": "#/$defs/f64"
+        },
+        "My": {
+          "$ref": "#/$defs/f64"
+        },
+        "Tsv": {
+          "$ref": "#/$defs/f64"
+        },
+        "B": {
+          "$ref": "#/$defs/f64"
+        },
+        "M_omega": {
+          "$ref": "#/$defs/f64"
+        },
+        "sigma_yield": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/f64"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "N",
+        "Vx",
+        "Vy",
+        "Mx",
+        "My",
+        "Tsv",
+        "B",
+        "M_omega",
+        "sigma_yield"
+      ],
+      "additionalProperties": false
+    },
+    "profile": {
+      "type": "object",
+      "properties": {
+        "segment_id": {
+          "$ref": "#/$defs/id"
+        },
+        "length": {
+          "$ref": "#/$defs/f64"
+        },
+        "thickness": {
+          "$ref": "#/$defs/f64"
+        },
+        "sigma_zz_coeffs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/f64"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "tau_membrane_coeffs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/f64"
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "tau_sv_surface": {
+          "$ref": "#/$defs/f64"
+        },
+        "peak_sigma_vm": {
+          "$ref": "#/$defs/f64"
+        },
+        "s_peak": {
+          "$ref": "#/$defs/f64"
+        }
+      },
+      "required": [
+        "segment_id",
+        "length",
+        "thickness",
+        "sigma_zz_coeffs",
+        "tau_membrane_coeffs",
+        "tau_sv_surface",
+        "peak_sigma_vm",
+        "s_peak"
+      ],
+      "additionalProperties": false
+    },
+    "result": {
+      "type": "object",
+      "properties": {
+        "max_sigma_vm": {
+          "$ref": "#/$defs/f64"
+        },
+        "peak_s": {
+          "$ref": "#/$defs/f64"
+        },
+        "resultant_N": {
+          "$ref": "#/$defs/f64"
+        },
+        "resultant_Mx": {
+          "$ref": "#/$defs/f64"
+        },
+        "resultant_My": {
+          "$ref": "#/$defs/f64"
+        },
+        "resultant_B": {
+          "$ref": "#/$defs/f64"
+        },
+        "segment_profiles": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "key": {
+                "$ref": "#/$defs/id"
+              },
+              "profile": {
+                "$ref": "#/$defs/profile"
+              }
+            },
+            "required": [
+              "key",
+              "profile"
+            ],
+            "additionalProperties": false
+          },
+          "minItems": 1
+        },
+        "peak_segment_id": {
+          "$ref": "#/$defs/id"
+        },
+        "peak_location_xy": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/f64"
+          },
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "load_factor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/f64"
+            },
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "special": {
+                  "const": "positive_infinity"
+                }
+              },
+              "required": [
+                "special"
+              ],
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "required": [
+        "max_sigma_vm",
+        "peak_s",
+        "resultant_N",
+        "resultant_Mx",
+        "resultant_My",
+        "resultant_B",
+        "segment_profiles",
+        "peak_segment_id",
+        "peak_location_xy",
+        "load_factor"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

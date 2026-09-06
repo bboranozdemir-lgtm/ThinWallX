@@ -1,0 +1,35 @@
+# Python bytecode and local build metadata
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+*.egg
+
+# Virtual environments and test/tool caches
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Editors, OS files and local credentials
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+.pypirc
+
+# Release archives in dist/ and all documentation are intentionally tracked.

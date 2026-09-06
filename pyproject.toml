@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "thinwallx"
+version = "1.0.0"
+description = "Numerical analysis tool for arbitrary thin-walled structural sections"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.20",
+]
+
+[project.scripts]
+thinwallx = "thinwallx.cli:main"
+
+[project.optional-dependencies]
+plots = [
+    "matplotlib>=3.6",
+]
+test = [
+    "pytest>=7.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.data-files]
+"share/thinwallx/docs" = ["docs/THEORY_AND_CONVENTIONS.md", "docs/CLI_REFERENCE.md", "docs/VERIFICATION_BENCHMARKS.md", "docs/V0_8_USAGE.md"]
+"share/thinwallx/schemas" = ["schemas/thinwallx-0.8.schema.json"]
