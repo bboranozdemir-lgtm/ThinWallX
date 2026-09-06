@@ -11,7 +11,7 @@ The frozen source is the executable convention. v1.0 adds orchestration and pres
 x points right, y up and z out of the section, forming a right-handed basis. X=x-cx and Y=y-cy are centroid-relative. Positive N is tensile. The exact normal-resultant convention is
 
 $$N=\int_A\sigma\,dA,\quad M_x=-\int_A Y\sigma\,dA,\quad
-M_y=\int_A X\sigma\,dA,\quad B=\int_A\omega^*\sigma\,dA.$$
+M_y=\int_A X\sigma\,dA,\quad B=\int_A\omega^\ast\sigma\,dA.$$
 
 Vx and Vy are the integrals of the transverse flow vector components. Positive Tsv is torque about +z. M_omega is the secondary warping moment with the signed secondary-flow convention below. Units are F for N,V; FL for Mx,My,Tsv,M_omega; FL² for B; F/L² for stress. Unit metadata never converts JSON quantities.
 
@@ -19,8 +19,8 @@ Vx and Vy are the integrals of the transverse flow vector components. Positive T
 
 Let r(s)=r1+s u, 0≤s≤L, u=(r2-r1)/L. For any two linear fields f,g with endpoint values f1,f2,g1,g2,
 
-$$\int_0^L f\,ds={L\over2}(f_1+f_2),$$
-$$\int_0^L fg\,ds={L\over6}(2f_1g_1+f_1g_2+f_2g_1+2f_2g_2).$$
+$$\int_0^L f\,ds=\frac{L}{2}(f_1+f_2),$$
+$$\int_0^L fg\,ds=\frac{L}{6}(2f_1g_1+f_1g_2+f_2g_1+2f_2g_2).$$
 
 Multiplication by t gives area integrals. Thus Ai=tL, first moments are Ai(x1+x2)/2 and Ai(y1+y2)/2, and A=sum Ai. The centroid is the first-moment sum divided by A. Raw Ix integrates y², raw Iy integrates x² and raw Ixy integrates xy. Their centroidal forms are Ix=Ix_raw-A cy², Iy=Iy_raw-A cx² and Ixy=Ixy_raw-A cx cy. Production uses local reference shifts to avoid subtracting unnecessarily large raw global moments. These identities do not authorize a numerically unstable raw-global implementation.
 
@@ -38,9 +38,9 @@ C\alpha=(V_x,V_y)^T.$$
 On a directed segment, with xi=s/L,
 
 $$m_{\rm partial}(\xi)=tL\left[\xi(X_1,Y_1)^T+
-{\xi^2\over2}(\Delta x,\Delta y)^T\right],$$
+\frac{\xi^2}{2}(\Delta x,\Delta y)^T\right],$$
 $$q(\xi)=a_0-tL(\alpha_xX_1+\alpha_yY_1)\xi
--{tL\over2}(\alpha_x\Delta x+\alpha_y\Delta y)\xi^2.$$
+-\frac{tL}{2}(\alpha_x\Delta x+\alpha_y\Delta y)\xi^2.$$
 
 a0 is set by the directed subtree balance. Each physical edge is counted once; reversal reverses the scalar flow convention while preserving q u. Free ends have zero flow and junctions satisfy signed Kirchhoff balance. Integrals of q and its first moments use polynomial antiderivatives, not plot samples. C must be positive definite and sufficiently conditioned: lambda_min must exceed 10^4 epsilon_machine lambda_max.
 
@@ -59,7 +59,7 @@ The transverse solution uses a virtual-cut tree flow qb and constant cell circul
 
 Tarjan bridge detection partitions mixed sections into open bridges and cyclic components. The cyclic subgraph obeys nc=|Ec|-|Vc|+kc. Independent cyclic blocks have no H coupling and are scaled and solved separately; a remote cell must not erase another through a global scale choice.
 
-$$J_{\rm open}={1\over3}\sum_{e\in E_{\rm open}}L_et_e^3,\qquad
+$$J_{\rm open}=\frac{1}{3}\sum_{e\in E_{\rm open}}L_et_e^3,\qquad
 J_{\rm total}=J_{BB}+J_{\rm open}.$$
 
 Closed walls are excluded from the open sum. This mixed model is the frozen thin-wall approximation, not an additional full-solid torsion correction.
@@ -68,9 +68,9 @@ Closed walls are excluded from the open sum. This mixed model is the frozen thin
 
 The pole is the shear center. For an open edge d omega/ds=p; on a closed edge d omega/ds=p-F_e/t_e. Signed traversal maintains continuous node values and closed-cycle compatibility. Subtract the area-weighted mean over every edge:
 
-$$\omega^*=\omega-\frac{\int_A\omega\,dA}{A},\qquad
-C_w=\sum_e{t_eL_e\over3}
-(\omega_1^{*2}+\omega_1^*\omega_2^*+\omega_2^{*2}).$$
+$$\omega^\ast=\omega-\frac{\int_A\omega\,dA}{A},\qquad
+C_w=\sum_e\frac{t_eL_e}{3}
+\left((\omega_1^\ast)^2+\omega_1^\ast\omega_2^\ast+(\omega_2^\ast)^2\right).$$
 
 Mean removal makes root choice irrelevant, subject to rounding. Shear-center warping has zero bending cross moments in the underlying model. Near-zero computed values are not automatically exact mathematical zero. A zero-resistance section cannot carry nonzero B or M_omega.
 
@@ -78,10 +78,10 @@ Mean removal makes root choice irrelevant, subject to rounding. Shear-center war
 
 With D=Ix Iy-Ixy²,
 
-$$\sigma_{zz}=N/A+
-{M_yI_x+M_xI_{xy}\over D}X-
-{M_xI_y+M_yI_{xy}\over D}Y+
-{B\over C_w}\omega^*.$$
+$$\sigma_{zz}=\frac{N}{A}+
+\frac{M_yI_x+M_xI_{xy}}{D}X-
+\frac{M_xI_y+M_yI_{xy}}{D}Y+
+\frac{B}{C_w}\omega^\ast.$$
 
 The secondary membrane flow is -M_omega/Cw times the directed warping static moment, with closed-cell compatibility corrections. Membrane stress is the combined transverse, secondary and closed-wall torsional flow divided by t. Closed torsional flow is Tsv F/Jtotal. On an open wall the opposing Saint-Venant surface stresses have magnitude |Tsv|t/Jtotal. The conservative surface envelope is |tau_membrane|+|tau_sv_surface|.
 

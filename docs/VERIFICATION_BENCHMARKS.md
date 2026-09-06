@@ -10,8 +10,8 @@ The phase specifications record the frozen conventions. [Theory](THEORY_AND_CONV
 
 Straight-strip integrals are derived by expanding linear endpoint interpolation. For an L with horizontal leg b and vertical leg h, uniform t, joined at the origin:
 
-$$A=t(b+h),\quad c_x={b^2\over2(b+h)},\quad c_y={h^2\over2(b+h)},$$
-$$I_x=th^3/3-Ac_y^2,\quad I_y=tb^3/3-Ac_x^2,\quad I_{xy}=-Ac_xc_y.$$
+$$A=t(b+h),\quad c_x=\frac{b^2}{2(b+h)},\quad c_y=\frac{h^2}{2(b+h)},$$
+$$I_x=\frac{th^3}{3}-Ac_y^2,\quad I_y=\frac{tb^3}{3}-Ac_x^2,\quad I_{xy}=-Ac_xc_y.$$
 
 The raw product moment is zero because each leg lies on an axis. This independently checks sign and centroid shifting. Symmetric I shapes check zero centroid offsets and product moment. Principal eigenvalues and reconstructed tensors test quadrant handling, rotations and isotropy. Translation and segment reversal are metamorphic checks, not new analytical references.
 
@@ -29,8 +29,8 @@ Extreme-scale benchmarks address intermediate products, cancellation, near-DBL_M
 
 A rectangular centerline box b by h with uniform t has
 
-$$J_{BB}={4b^2h^2\over2(b+h)/t}
-={2tb^2h^2\over b+h},\qquad I_x=th^2(b/2+h/6).$$
+$$J_{BB}=\frac{4b^2h^2}{2(b+h)/t}
+=\frac{2tb^2h^2}{b+h},\qquad I_x=th^2(b/2+h/6).$$
 
 These are independent of any Section property call. For the specified reference cut at xi_c in the transverse oracle, q0=-(Vy t b h(1-2xi_c))/(4Ix). q0 is cut-dependent; total physical wall flow is not. Tests vary xi_c, including the zero-circulation symmetry case, rather than treating one arbitrary cut as universal.
 
