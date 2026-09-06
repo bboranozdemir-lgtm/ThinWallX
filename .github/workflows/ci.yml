@@ -37,15 +37,4 @@ jobs:
       - name: Install backend used by frozen packaging tests
         run: python -m pip install "setuptools>=70" wheel
       - name: Frozen regression suite
-        run: >-
-          python -c "
-          import subprocess, sys, os
-          proc = subprocess.run([sys.executable, '-m', 'pytest', '-W', 'error', '--tb=short', '-v'], capture_output=True, text=True)
-          summary = os.environ.get('GITHUB_STEP_SUMMARY')
-          if summary and proc.returncode != 0:
-              with open(summary, 'a', encoding='utf-8') as f:
-                  f.write('## Pytest Failure Output on ' + sys.platform + ' (Python ' + sys.version.split()[0] + ')\n\n```\n' + proc.stdout[-6000:] + '\n' + proc.stderr[-6000:] + '\n```\n')
-          print(proc.stdout)
-          print(proc.stderr, file=sys.stderr)
-          sys.exit(proc.returncode)
-          "
+        run: python -m pytest -W error

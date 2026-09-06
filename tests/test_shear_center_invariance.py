@@ -187,4 +187,6 @@ class TestLoadScalingAndResidualTorque:
         res = sec.compute_shear_center()
 
         residual = res.residual_torque(vx=vx, vy=vy)
-        assert abs(residual) < 1e-10
+        # For ~10^4 N loads on ~10^2 mm section, applied torque ~ 10^6 N*mm.
+        # Float64 roundoff floor is 10^6 * 2.22e-16 ~ 2.2e-10 N*mm; 1e-9 represents < 10^-15 relative precision.
+        assert abs(residual) < 1e-9
