@@ -1,4 +1,4 @@
-"""Unit tests for shear-flow validation and error handling (ThinWallX v0.2).
+"""Unit tests for shear-flow validation and error handling (Sectalix v0.2).
 
 Verifies acceptance criteria 16 and 17:
 - Criterion 16: Singular / effectively rank-deficient inertia matrices fail explicitly
@@ -11,11 +11,11 @@ import numpy as np
 import pytest
 
 
-from thinwallx.exceptions import GeometryError, SingularSectionError
-from thinwallx.primitives import Node, Segment
-from thinwallx.section import Section
-from thinwallx.shear_flow import calculate_shear_flow
-from thinwallx.shear_load import ShearLoad
+from sectalix.exceptions import GeometryError, SingularSectionError
+from sectalix.primitives import Node, Segment
+from sectalix.section import Section
+from sectalix.shear_flow import calculate_shear_flow
+from sectalix.shear_load import ShearLoad
 
 
 class TestShearLoadValidation:
@@ -53,7 +53,7 @@ class TestShearLoadValidation:
             calculate_shear_flow("not_a_section", 100.0, 100.0)  # type: ignore
 
     def test_unvalidated_invalid_section_rejected(self) -> None:
-        from thinwallx.exceptions import TopologyError
+        from sectalix.exceptions import TopologyError
 
         # Build closed loop with validate=False
         n1 = Node(0.0, 0.0)

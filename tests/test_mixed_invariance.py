@@ -1,4 +1,4 @@
-"""Invariance, scaling, and adversarial test suite for ThinWallX v0.6.
+"""Invariance, scaling, and adversarial test suite for Sectalix v0.6.
 
 Covers:
 - T02: Branched tree / Y, inclined flange, different thicknesses, Kirchhoff balance.
@@ -21,10 +21,10 @@ import math
 import pytest
 import numpy as np
 
-from thinwallx.exceptions import GeometryError, SingularSectionError, TopologyError
-from thinwallx.mixed_section import MixedSection
-from thinwallx.primitives import Node, Segment
-from thinwallx.shear_load import ShearLoad
+from sectalix.exceptions import GeometryError, SingularSectionError, TopologyError
+from sectalix.mixed_section import MixedSection
+from sectalix.primitives import Node, Segment
+from sectalix.shear_load import ShearLoad
 
 
 def make_b1_hat_section() -> MixedSection:
@@ -419,7 +419,7 @@ class TestMixedInvariance:
             Segment(Node(2, 2), Node(3, 2), t=0.01),
         ]
         sec = MixedSection(box)
-        from thinwallx.exceptions import TopologyError
+        from sectalix.exceptions import TopologyError
 
         # Wrong edge count
         with pytest.raises(TopologyError, match="does not form a valid connected spanning tree"):
@@ -514,8 +514,8 @@ class TestMixedInvariance:
 
     def test_t23_full_regression_baseline(self) -> None:
         """T23: Confirms that pure open Section and pure closed ClosedSection retain original behavior."""
-        from thinwallx.closed_section import ClosedSection
-        from thinwallx.section import Section
+        from sectalix.closed_section import ClosedSection
+        from sectalix.section import Section
 
         # Open section
         s1 = Segment(Node(0.0, 0.0), Node(10.0, 0.0), t=1.0)

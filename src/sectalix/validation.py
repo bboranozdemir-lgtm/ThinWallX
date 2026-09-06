@@ -1,4 +1,4 @@
-"""Input and topology validation for ThinWallX v0.1."""
+"""Input and topology validation for Sectalix v0.1."""
 
 from __future__ import annotations
 
@@ -6,8 +6,8 @@ from collections import deque
 import math
 from typing import Sequence
 
-from thinwallx.exceptions import GeometryError, TopologyError
-from thinwallx.primitives import Node, Segment
+from sectalix.exceptions import GeometryError, TopologyError
+from sectalix.primitives import Node, Segment
 
 
 def _validate_node_tolerance(tol: float) -> None:

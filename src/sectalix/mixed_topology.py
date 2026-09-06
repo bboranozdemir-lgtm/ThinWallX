@@ -1,4 +1,4 @@
-"""Planar graph decomposition and topology extraction for mixed open-closed sections (ThinWallX v0.6).
+"""Planar graph decomposition and topology extraction for mixed open-closed sections (Sectalix v0.6).
 
 Implements deterministic graph decomposition:
 1. Bridge detection via Tarjan DFS: partitions edges into cyclic edges E_c and open bridges E_o.
@@ -18,10 +18,10 @@ from typing import Sequence
 
 import numpy as np
 
-from thinwallx.cells import Cell
-from thinwallx.exceptions import GeometryError, SingularSectionError, TopologyError
-from thinwallx.primitives import Node, Segment
-from thinwallx.validation import (
+from sectalix.cells import Cell
+from sectalix.exceptions import GeometryError, SingularSectionError, TopologyError
+from sectalix.primitives import Node, Segment
+from sectalix.validation import (
     _validate_node_tolerance,
     _validate_segment_intersections,
     cluster_nodes,

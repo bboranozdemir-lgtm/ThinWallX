@@ -2,7 +2,7 @@
 import math
 import numpy as np
 import pytest
-from thinwallx import SegmentStressProfile
+from sectalix import SegmentStressProfile
 
 
 @pytest.mark.parametrize("surface",[0.0,0.3,4.0])

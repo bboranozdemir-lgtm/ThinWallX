@@ -1,17 +1,17 @@
-# ThinWallX — Developer & Contributor Guide
+# Sectalix — Developer & Contributor Guide
 
-Welcome to ThinWallX, a production-quality numerical analysis library for arbitrary thin-walled structural cross-sections.
+Welcome to Sectalix, a production-quality numerical analysis library for arbitrary thin-walled structural cross-sections.
 
 ## Project Status
 
-ThinWallX has completed its initial v0.1–v1.0 roadmap. The numerical core (v0.1–v0.8) and CLI/reporting modules (v1.0) are formally **FROZEN** with 559 regression tests passing at 100% with zero warnings (`-W error`).
+Sectalix has completed its initial v0.1–v1.0 roadmap. The numerical core (v0.1–v0.8) and CLI/reporting modules (v1.0) are formally **FROZEN** with 559 regression tests passing at 100% with zero warnings (`-W error`).
 
 ## Quick Developer Setup
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/bboranozdemir-lgtm/ThinWallX.git
-   cd ThinWallX
+   git clone https://github.com/bboranozdemir-lgtm/Sectalix.git
+   cd Sectalix
    ```
 
 2. Create and activate a virtual environment:
@@ -36,7 +36,7 @@ ThinWallX has completed its initial v0.1–v1.0 roadmap. The numerical core (v0.
 
 ## Repository Structure
 
-- `src/thinwallx/`: Core numerical analysis library, CLI, and reporting modules.
+- `src/sectalix/`: Core numerical analysis library, CLI, and reporting modules.
 - `tests/`: 559 comprehensive unit, benchmark, and regression tests.
 - `docs/`: Technical reference documentation:
   - `docs/THEORY_AND_CONVENTIONS.md`: Formulations, sign conventions, and coordinate rules.

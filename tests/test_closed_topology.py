@@ -1,13 +1,13 @@
-"""Tests for planar cell topology extraction and validation (ThinWallX v0.5)."""
+"""Tests for planar cell topology extraction and validation (Sectalix v0.5)."""
 
 import math
 import numpy as np
 import pytest
 
-from thinwallx.cells import Cell, CellTopology, extract_cell_topology
-from thinwallx.closed_section import ClosedSection
-from thinwallx.exceptions import GeometryError, SingularSectionError, TopologyError
-from thinwallx.primitives import Node, Segment
+from sectalix.cells import Cell, CellTopology, extract_cell_topology
+from sectalix.closed_section import ClosedSection
+from sectalix.exceptions import GeometryError, SingularSectionError, TopologyError
+from sectalix.primitives import Node, Segment
 
 
 def make_box_segments(a: float, b: float, t: float) -> list[Segment]:

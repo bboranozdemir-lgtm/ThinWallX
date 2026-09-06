@@ -1,5 +1,5 @@
-﻿"""ThinWallX — Python API Quickstart Example."""
-from thinwallx import (
+"""Sectalix — Python API Quickstart Example."""
+from sectalix import (
     Node,
     Segment,
     Section,

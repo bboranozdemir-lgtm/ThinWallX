@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pytest
 
-from thinwallx import AppliedLoads, ClosedSection, MixedSection
-from thinwallx.reporting import calculation_report, write_report, inspect_section
-from thinwallx.serialization import UnitSystem
+from sectalix import AppliedLoads, ClosedSection, MixedSection
+from sectalix.reporting import calculation_report, write_report, inspect_section
+from sectalix.serialization import UnitSystem
 from tests.test_serialization import shape
 
 
@@ -52,7 +52,7 @@ def test_t28_atomic(tmp_path,monkeypatch):
     with pytest.raises(FileExistsError):
         write_report(sec,loads,result,path)
     assert path.read_bytes()==old
-    assert not list(tmp_path.glob(".thinwallx-*"))
+    assert not list(tmp_path.glob(".sectalix-*"))
 
 
 def test_zero_stress_unbounded_factor():
@@ -85,7 +85,7 @@ def test_report_missing_image_fails_before_write(tmp_path):
 
 
 def test_t28_publication_failure_cleans_temporary(tmp_path, monkeypatch):
-    import thinwallx.serialization as codec
+    import sectalix.serialization as codec
     sec = shape()
     loads = AppliedLoads(N=1)
     def fail(source, destination):

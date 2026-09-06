@@ -1,14 +1,14 @@
-"""Tests for closed-section transverse shear flow (ThinWallX v0.5)."""
+"""Tests for closed-section transverse shear flow (Sectalix v0.5)."""
 
 import math
 import numpy as np
 import pytest
 
-from thinwallx.closed_section import ClosedSection
-from thinwallx.closed_shear_flow import calculate_closed_shear_flow
-from thinwallx.exceptions import GeometryError, SingularSectionError
-from thinwallx.primitives import Node, Segment
-from thinwallx.shear_load import ShearLoad
+from sectalix.closed_section import ClosedSection
+from sectalix.closed_shear_flow import calculate_closed_shear_flow
+from sectalix.exceptions import GeometryError, SingularSectionError
+from sectalix.primitives import Node, Segment
+from sectalix.shear_load import ShearLoad
 
 
 def make_box_section(a: float = 100.0, b: float = 50.0, t: float = 2.0) -> ClosedSection:

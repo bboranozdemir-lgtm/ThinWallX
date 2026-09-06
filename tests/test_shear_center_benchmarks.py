@@ -1,4 +1,4 @@
-"""Benchmark tests for ThinWallX v0.3 Shear Center Analysis.
+"""Benchmark tests for Sectalix v0.3 Shear Center Analysis.
 
 Verifies:
 1. Doubly symmetric I-section: e_s = 0, shear center at centroid.
@@ -15,14 +15,14 @@ import math
 import numpy as np
 import pytest
 
-from thinwallx.primitives import Node, Segment
-from thinwallx.section import Section
-from thinwallx.shear_center import (
+from sectalix.primitives import Node, Segment
+from sectalix.section import Section
+from sectalix.shear_center import (
     ShearCenterResult,
     compute_shear_center,
     compute_shear_flow_torque,
 )
-from thinwallx.shear_flow import calculate_shear_flow
+from sectalix.shear_flow import calculate_shear_flow
 
 
 def make_i_section(

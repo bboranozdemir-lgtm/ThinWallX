@@ -1,4 +1,4 @@
-"""Tests for mixed open-closed topology decomposition (ThinWallX v0.6).
+"""Tests for mixed open-closed topology decomposition (Sectalix v0.6).
 
 Covers:
 - T01: Single-cell + branch; multi-cell + multi-branch (E_c, E_o, junctions, rank).
@@ -16,10 +16,10 @@ import math
 import pytest
 import numpy as np
 
-from thinwallx.exceptions import GeometryError, SingularSectionError, TopologyError
-from thinwallx.mixed_section import MixedSection
-from thinwallx.mixed_topology import MixedTopology, extract_mixed_topology
-from thinwallx.primitives import Node, Segment
+from sectalix.exceptions import GeometryError, SingularSectionError, TopologyError
+from sectalix.mixed_section import MixedSection
+from sectalix.mixed_topology import MixedTopology, extract_mixed_topology
+from sectalix.primitives import Node, Segment
 
 
 def make_box_segments(x0: float, y0: float, w: float, h: float, t: float) -> list[Segment]:

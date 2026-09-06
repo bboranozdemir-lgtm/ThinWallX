@@ -17,11 +17,11 @@ import re
 from types import MappingProxyType
 from typing import Any
 
-from thinwallx import Node, Segment, Section, ClosedSection, MixedSection
-from thinwallx.exceptions import GeometryError, TopologyError
-from thinwallx.mixed_topology import extract_mixed_topology
-from thinwallx.serialization import _unfloat, _record
-from thinwallx.validation import cluster_nodes
+from sectalix import Node, Segment, Section, ClosedSection, MixedSection
+from sectalix.exceptions import GeometryError, TopologyError
+from sectalix.mixed_topology import extract_mixed_topology
+from sectalix.serialization import _unfloat, _record
+from sectalix.validation import cluster_nodes
 
 Point = tuple[float, float]
 Pair = tuple[int, str, int]

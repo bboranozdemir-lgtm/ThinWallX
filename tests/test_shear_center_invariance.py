@@ -1,4 +1,4 @@
-"""Invariance and covariance tests for ThinWallX v0.3 Shear Center Analysis.
+"""Invariance and covariance tests for Sectalix v0.3 Shear Center Analysis.
 
 Verifies:
 1. Rigid translation covariance (both moderate and 1e12 large translation).
@@ -15,11 +15,11 @@ import math
 import numpy as np
 import pytest
 
-from thinwallx.primitives import Node, Segment
-from thinwallx.section import Section
-from thinwallx.shear_center import compute_shear_center, compute_shear_flow_torque
-from thinwallx.shear_flow import calculate_shear_flow
-from thinwallx.shear_load import ShearLoad
+from sectalix.primitives import Node, Segment
+from sectalix.section import Section
+from sectalix.shear_center import compute_shear_center, compute_shear_flow_torque
+from sectalix.shear_flow import calculate_shear_flow
+from sectalix.shear_load import ShearLoad
 
 
 def make_channel_section() -> Section:

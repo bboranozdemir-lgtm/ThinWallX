@@ -1,4 +1,4 @@
-"""Benchmark tests for ThinWallX v0.4 Torsion and Warping Analysis.
+"""Benchmark tests for Sectalix v0.4 Torsion and Warping Analysis.
 
 Verifies:
 1. Doubly symmetric I-section: analytical J and Cw = tf * b^3 * h^2 / 24, web omega = 0.
@@ -15,9 +15,9 @@ import sys
 import numpy as np
 import pytest
 
-from thinwallx.primitives import Node, Segment
-from thinwallx.section import Section
-from thinwallx.torsion import (
+from sectalix.primitives import Node, Segment
+from sectalix.section import Section
+from sectalix.torsion import (
     SegmentWarping,
     TorsionWarpingResult,
     compute_torsion_warping,
@@ -390,7 +390,7 @@ class TestExtremeScaleRobustness:
         Verifies that:
         1. On segment 0, a and b have opposite signs and a >= sqrt(1.05 * DBL_MAX) ~= 1.37e154.
         2. Naive polynomial evaluation (a*a + a*b + b*b) overflows to inf.
-        3. ThinWallX complete squares with characteristic scaling evaluates Cw to a finite, positive value < DBL_MAX.
+        3. Sectalix complete squares with characteristic scaling evaluates Cw to a finite, positive value < DBL_MAX.
         """
         angle1 = 135
         angle2 = -90
@@ -436,7 +436,7 @@ class TestExtremeScaleRobustness:
         assert not math.isfinite(a * a)
         assert not math.isfinite((a * a) + (a * b) + (b * b))
 
-        # 4. ThinWallX result is strictly finite, positive, and bounded by DBL_MAX
+        # 4. Sectalix result is strictly finite, positive, and bounded by DBL_MAX
         assert math.isfinite(res.Cw)
         assert 0.0 < res.Cw < sys.float_info.max
         assert np.isclose(res.Cw, 1.7781306565303429e308, rtol=1e-14, atol=0.0)

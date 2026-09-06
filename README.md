@@ -1,12 +1,12 @@
-# ThinWallX
+# Sectalix
 
-[![CI](https://github.com/bboranozdemir-lgtm/ThinWallX/actions/workflows/ci.yml/badge.svg)](https://github.com/bboranozdemir-lgtm/ThinWallX/actions/workflows/ci.yml)
+[![CI](https://github.com/bboranozdemir-lgtm/Sectalix/actions/workflows/ci.yml/badge.svg)](https://github.com/bboranozdemir-lgtm/Sectalix/actions/workflows/ci.yml)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**ThinWallX** is a Python library and command-line tool for thin-walled structural cross-sections. It evaluates closed-form centerline integrals in float64 for open, closed (multi-cell), and mixed topologies, without numerical quadrature or finite element meshing.
+**Sectalix** is a Python library and command-line tool for thin-walled structural cross-sections. It evaluates closed-form centerline integrals in float64 for open, closed (multi-cell), and mixed topologies, without numerical quadrature or finite element meshing.
 
-![ThinWallX Von Mises Stress Analysis](examples/sample_calculation/stress_vm.png)
+![Sectalix Von Mises Stress Analysis](examples/sample_calculation/stress_vm.png)
 
 ---
 
@@ -17,17 +17,22 @@
 - **Vlasov Warping Theory:** Continuous sectorial coordinate field $\omega^\ast(s)$ with zero-mean normalization and sectorial warping constant $C_w$.
 - **Stress Recovery & Peak Search:** Analytical stress profiles ($\sigma_{zz}, \tau_{\rm surface}, \sigma_{\rm vm}$) with polynomial root-finding for peak von Mises stress and elastic first-yield multiplier ($\lambda$), rather than sampled peak estimation.
 - **Zero Heavy Dependencies:** Core computation runs strictly on Python standard library and `numpy`. Plotting optionally utilizes `matplotlib`.
-- **Engineering CLI & Calculation Sheets:** Built-in command line interface (`thinwallx`) with standard UNIX exit codes, streaming piping (`stdin`/`stdout`), and automated GitHub-Flavored Markdown Calculation Sheet generator.
+- **Engineering CLI & Calculation Sheets:** Built-in command line interface (`sectalix`) with standard UNIX exit codes, streaming piping (`stdin`/`stdout`), and automated GitHub-Flavored Markdown Calculation Sheet generator.
 - **CAD & Lossless Interchange:** Exact IEEE-754 float64 hexadecimal JSON serialization and standalone ASCII DXF importer.
 
 ---
 
 ## Installation
 
+### From PyPI
+```bash
+python -m pip install sectalix
+```
+
 ### From Source / Clone
 ```bash
-git clone https://github.com/bboranozdemir-lgtm/ThinWallX.git
-cd ThinWallX
+git clone https://github.com/bboranozdemir-lgtm/Sectalix.git
+cd Sectalix
 pip install -e .
 ```
 
@@ -42,20 +47,20 @@ pip install -e ".[plots]"
 
 ### 1. Command-Line Interface (CLI)
 
-ThinWallX provides a unified CLI for inspecting sections, converting CAD files, and solving stress recovery:
+Sectalix provides a unified CLI for inspecting sections, converting CAD files, and solving stress recovery:
 
 ```bash
 # Inspect cross-section characteristics (Area, Centroid, Inertia, J, Cw)
-thinwallx inspect examples/sample_sections/rectangle.dxf
+sectalix inspect examples/sample_sections/rectangle.dxf
 
 # Run full stress recovery analysis under external loads
-thinwallx analyze examples/sample_sections/rectangle.dxf \
+sectalix analyze examples/sample_sections/rectangle.dxf \
   --N 10000 --Vy 5000 --Mx 250000 --sigma-yield 355 \
   --report calculation_report.md \
   --plots-dir ./output_plots
 
 # Directly render section geometry to PNG/SVG
-thinwallx plot examples/sample_sections/rectangle.dxf --output geometry.png
+sectalix plot examples/sample_sections/rectangle.dxf --output geometry.png
 ```
 
 The rectangle example is a 4 x 2 mm centerline box with thickness 0.01 mm,
@@ -67,7 +72,7 @@ Plot-producing commands require the optional `plots` installation above.
 ### 2. Python API
 
 ```python
-from thinwallx import Node, Segment, Section, AppliedLoads
+from sectalix import Node, Segment, Section, AppliedLoads
 
 # Define an open channel section (C-Channel: 50x100x50 mm, t=2 mm)
 n0 = Node(x=50.0, y=100.0)
@@ -112,7 +117,7 @@ print(f"Elastic Load Factor: lambda = {results.load_factor:.3f}")
 
 - **Thin-Wall Centerline Model:** Geometry is represented by 1D straight segments along wall centerlines with uniform segment thickness $t$.
 - **Omitted Effects:** Corner fillets, root radii, and local corner overlap volumes are neglected. Plate through-thickness transverse shear deformation is omitted.
-- **Elastic Scope:** ThinWallX calculates linear-elastic section properties and stress distributions. It does not perform plastic hinge analysis, local/global buckling verification, or structural design code checks (AISC/Eurocode). The elastic load factor is a first-yield indicator, not a regulatory safety certification.
+- **Elastic Scope:** Sectalix calculates linear-elastic section properties and stress distributions. It does not perform plastic hinge analysis, local/global buckling verification, or structural design code checks (AISC/Eurocode). The elastic load factor is a first-yield indicator, not a regulatory safety certification.
 
 ---
 
@@ -128,4 +133,4 @@ print(f"Elastic Load Factor: lambda = {results.load_factor:.3f}")
 
 ## License
 
-ThinWallX is released under the [MIT License](LICENSE).
+Sectalix is released under the [MIT License](LICENSE).

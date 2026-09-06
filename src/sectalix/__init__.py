@@ -1,65 +1,65 @@
-"""ThinWallX — Numerical analysis tool for arbitrary thin-walled structural sections."""
+"""Sectalix — Numerical analysis tool for arbitrary thin-walled structural sections."""
 
 from __future__ import annotations
 
-from thinwallx.cells import Cell, CellTopology, extract_cell_topology
-from thinwallx.closed_section import ClosedSection
-from thinwallx.closed_shear_flow import (
+from sectalix.cells import Cell, CellTopology, extract_cell_topology
+from sectalix.closed_section import ClosedSection
+from sectalix.closed_shear_flow import (
     ClosedSegmentShearFlow,
     ClosedShearFlowResult,
     calculate_closed_shear_flow,
 )
-from thinwallx.closed_torsion import (
+from sectalix.closed_torsion import (
     ClosedTorsionWarpingResult,
     compute_closed_shear_center,
     compute_closed_torsion_warping,
 )
-from thinwallx.exceptions import (
+from sectalix.exceptions import (
     GeometryError,
     SingularSectionError,
-    ThinWallXError,
+    SectalixError,
     TopologyError,
     ValidationError,
 )
-from thinwallx.mixed_section import MixedSection
-from thinwallx.mixed_shear_flow import (
+from sectalix.mixed_section import MixedSection
+from sectalix.mixed_shear_flow import (
     MixedSegmentShearFlow,
     MixedShearFlowResult,
     calculate_mixed_shear_flow,
 )
-from thinwallx.mixed_topology import MixedTopology, extract_mixed_topology
-from thinwallx.mixed_torsion import (
+from sectalix.mixed_topology import MixedTopology, extract_mixed_topology
+from sectalix.mixed_torsion import (
     MixedTorsionWarpingResult,
     compute_mixed_shear_center,
     compute_mixed_torsion_warping,
 )
-from thinwallx.primitives import Node, Segment
-from thinwallx.properties import SectionProperties, compute_properties
-from thinwallx.section import Section
-from thinwallx.shear_center import (
+from sectalix.primitives import Node, Segment
+from sectalix.properties import SectionProperties, compute_properties
+from sectalix.section import Section
+from sectalix.shear_center import (
     ShearCenterResult,
     compute_shear_center,
     compute_shear_flow_torque,
 )
-from thinwallx.shear_flow import (
+from sectalix.shear_flow import (
     SegmentShearFlow,
     ShearFlowResult,
     calculate_shear_flow,
 )
-from thinwallx.shear_load import ShearLoad
-from thinwallx.torsion import (
+from sectalix.shear_load import ShearLoad
+from sectalix.torsion import (
     SegmentWarping,
     TorsionWarpingResult,
     compute_torsion_warping,
 )
-from thinwallx.validation import (
+from sectalix.validation import (
     cluster_nodes,
     validate_section_geometry_and_topology,
 )
 
-from thinwallx.stress import AppliedLoads, SegmentStressProfile, StressRecoveryResult, calculate_stresses
+from sectalix.stress import AppliedLoads, SegmentStressProfile, StressRecoveryResult, calculate_stresses
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 __all__ = [
     "AppliedLoads",
@@ -88,7 +88,7 @@ __all__ = [
     "ShearFlowResult",
     "ShearLoad",
     "SingularSectionError",
-    "ThinWallXError",
+    "SectalixError",
     "TopologyError",
     "TorsionWarpingResult",
     "ValidationError",

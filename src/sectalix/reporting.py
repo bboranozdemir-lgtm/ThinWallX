@@ -12,9 +12,9 @@ from pathlib import Path
 from typing import Mapping
 from urllib.parse import quote
 
-from thinwallx import Section, ClosedSection, MixedSection
-from thinwallx.serialization import UnitSystem, _atomic_write, _f64, to_dict
-from thinwallx.stress import AppliedLoads, StressRecoveryResult
+from sectalix import Section, ClosedSection, MixedSection
+from sectalix.serialization import UnitSystem, _atomic_write, _f64, to_dict
+from sectalix.stress import AppliedLoads, StressRecoveryResult
 
 
 @dataclass(frozen=True)
@@ -42,7 +42,7 @@ def _rational_float(value: Fraction) -> float:
 def inspect_section(section: Section) -> SectionInspection:
     """Obtain the required properties from frozen public APIs, once."""
     if type(section) not in (Section, ClosedSection, MixedSection):
-        raise TypeError("Expected a ThinWallX section")
+        raise TypeError("Expected a Sectalix section")
     section.validate()
     if isinstance(section, MixedSection):
         topology = section.mixed_topology.topology_type
@@ -66,7 +66,7 @@ def inspection_json(section: Section, units: UnitSystem, inspection: SectionInsp
     """v1 observation envelope, not an additional v0.8 serializable kind."""
     info = inspection or inspect_section(section)
     record = {
-        "format": "thinwallx-inspection", "schema_version": "1.0",
+        "format": "sectalix-inspection", "schema_version": "1.0",
         "number_encoding": "float64-hex", "topology": info.topology,
         "node_count": info.node_count, "segment_count": info.segment_count,
         "units": {"length": units.length, "force": units.force},
@@ -100,7 +100,7 @@ def property_rows(info: SectionInspection, units: UnitSystem) -> list[tuple[str,
 
 
 def inspection_text(info: SectionInspection, units: UnitSystem) -> str:
-    return (f"ThinWallX section: {info.topology}\nNodes: {info.node_count}\nSegments: {info.segment_count}\n"
+    return (f"Sectalix section: {info.topology}\nNodes: {info.node_count}\nSegments: {info.segment_count}\n"
             + "\n".join(f"{k}: {v} [{u}]" for k, v, u in property_rows(info, units)) + "\n")
 
 
@@ -168,7 +168,7 @@ def calculation_report(
         relative = os.path.relpath(image_path, Path(report_path).absolute().parent).replace(os.sep, "/")
         images.append(f"![{_escape(label)}](./{quote(relative, safe='/._-')})")
     sections = [
-        "# ThinWallX v1.0 Calculation Report",
+        "# Sectalix v1.0.1 Calculation Report",
         f"Generated: {stamp.isoformat()}\n\nInput: {_escape(input_path)}\n\n"
         f"Units: length={_escape(length)}, force={_escape(force)}",
         "## Geometry and model assumptions\n\n"

@@ -1,4 +1,4 @@
-"""ThinWallX argparse CLI. Stdout is data only; errors use stderr."""
+"""Sectalix argparse CLI. Stdout is data only; errors use stderr."""
 from __future__ import annotations
 
 import argparse
@@ -9,11 +9,11 @@ from pathlib import Path
 import sys
 from typing import Sequence
 
-from thinwallx import __version__, Section, AppliedLoads
-from thinwallx.dxf import DxfImportOptions, ThicknessMap, read_dxf
-from thinwallx.exceptions import GeometryError, TopologyError, SingularSectionError
-from thinwallx.reporting import inspect_section, inspection_json, inspection_text, write_report
-from thinwallx.serialization import (
+from sectalix import __version__, Section, AppliedLoads
+from sectalix.dxf import DxfImportOptions, ThicknessMap, read_dxf
+from sectalix.exceptions import GeometryError, TopologyError, SingularSectionError
+from sectalix.reporting import inspect_section, inspection_json, inspection_text, write_report
+from sectalix.serialization import (
     DecodeLimits, DecodedDocument, UnitSystem, read_json, from_json, to_json, _atomic_write,
 )
 
@@ -50,8 +50,8 @@ def _number(token: str) -> float:
 
 
 def parser() -> argparse.ArgumentParser:
-    root = _Parser(prog="thinwallx", description="Thin-wall inspection, analysis and reports.")
-    root.add_argument("--version", action="version", version=f"ThinWallX {__version__}")
+    root = _Parser(prog="sectalix", description="Thin-wall inspection, analysis and reports.")
+    root.add_argument("--version", action="version", version=f"Sectalix {__version__}")
     commands = root.add_subparsers(dest="command", required=True)
     for name in ("inspect", "analyze", "plot", "convert-dxf"):
         p = commands.add_parser(name)
@@ -185,7 +185,7 @@ def _execute(args: argparse.Namespace) -> None:
     elif args.command == "convert-dxf":
         _output(to_json(document)+"\n", args.output, args.overwrite)
     elif args.command == "plot":
-        from thinwallx.plotting import plot_geometry, GeometryPlotOptions
+        from sectalix.plotting import plot_geometry, GeometryPlotOptions
         plot_geometry(section, args.output, units=units, overwrite=args.overwrite,
                       options=GeometryPlotOptions(show_thickness=args.show_thickness,
                                                   show_principal_axes=args.show_axes,
@@ -198,7 +198,7 @@ def _execute(args: argparse.Namespace) -> None:
         info = inspect_section(section) if args.report else None
         images: dict[str, Path] = {}
         if args.plots_dir:
-            from thinwallx.plotting import plot_geometry, plot_shear_flow, plot_stresses
+            from sectalix.plotting import plot_geometry, plot_shear_flow, plot_stresses
             folder = Path(args.plots_dir)
             flow = section.calculate_shear_flow(vx=loads.Vx, vy=loads.Vy)
             folder.mkdir(parents=True, exist_ok=True)
@@ -231,5 +231,5 @@ def main(argv: Sequence[str] | None = None) -> int:
         code, message = 6, str(exc)
     except (OSError, ValueError, TypeError, ImportError) as exc:
         code, message = 2, str(exc)
-    print(f"thinwallx: {message}", file=sys.stderr)
+    print(f"sectalix: {message}", file=sys.stderr)
     return code

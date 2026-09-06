@@ -5,7 +5,7 @@ import sys
 
 import pytest
 
-from thinwallx import (AppliedLoads, ClosedSection, GeometryError, MixedSection,
+from sectalix import (AppliedLoads, ClosedSection, GeometryError, MixedSection,
                       Node, Section, Segment, SegmentStressProfile,
                       SingularSectionError, calculate_stresses)
 from tests.test_stress_benchmarks import fixtures
@@ -172,7 +172,7 @@ def test_geometric_scaling_at_fixed_stress(factor):
 def test_secondary_flow_node_and_cycle_balance(kind):
     section,*_=fixtures(kind)
     result=section.stresses(AppliedLoads(M_omega=2))
-    from thinwallx.mixed_topology import extract_mixed_topology
+    from sectalix.mixed_topology import extract_mixed_topology
     topology=extract_mixed_topology(section.segments)
     residual=[0.0]*topology.node_count
     scale=0.0
@@ -221,7 +221,7 @@ def test_roundoff_only_warping_is_rejected(cls,kind,scale,warping_load):
 def test_resolution_threshold_has_no_intermediate_range_loss():
     from fractions import Fraction
     from types import SimpleNamespace
-    from thinwallx.stress import _unresolved_warping_resistance
+    from sectalix.stress import _unresolved_warping_resistance
     for length,thickness in [(1e70,1e-70),(1e-70,1e50)]:
         section=SimpleNamespace(segments=[SimpleNamespace(length=length,t=thickness)])
         exact=Fraction.from_float(1e-12)*Fraction.from_float(thickness)*Fraction.from_float(length)**5

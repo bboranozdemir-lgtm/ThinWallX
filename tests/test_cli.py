@@ -8,9 +8,9 @@ import sys
 
 import pytest
 
-from thinwallx import AppliedLoads
-from thinwallx.cli import main
-from thinwallx.serialization import from_json, to_json, write_json, UnitSystem
+from sectalix import AppliedLoads
+from sectalix.cli import main
+from sectalix.serialization import from_json, to_json, write_json, UnitSystem
 from tests.test_serialization import shape
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,7 +19,7 @@ DXF = ROOT/"tests"/"fixtures"/"dxf"
 
 def run(*args: str, stdin: str | None = None) -> subprocess.CompletedProcess[str]:
     env = dict(os.environ, PYTHONPATH=str(ROOT/"src"), PYTHONIOENCODING="utf-8")
-    return subprocess.run([sys.executable, "-W", "error", "-m", "thinwallx", *map(str,args)],
+    return subprocess.run([sys.executable, "-W", "error", "-m", "sectalix", *map(str,args)],
                           input=stdin, capture_output=True, text=True, encoding="utf-8", env=env)
 
 
@@ -27,7 +27,7 @@ def run(*args: str, stdin: str | None = None) -> subprocess.CompletedProcess[str
 def test_t01(flag):
     p=run(flag)
     assert p.returncode==0 and not p.stderr
-    assert ("1.0.0" if flag=="--version" else "convert-dxf") in p.stdout
+    assert ("1.0.1" if flag=="--version" else "convert-dxf") in p.stdout
 
 
 @pytest.mark.parametrize("args",[[],["bad"],["inspect"],["inspect","x.json","--bad"]])
@@ -82,7 +82,7 @@ def test_t10_t12_artifacts(tmp_path):
     assert p.returncode==0,p.stderr
     assert not p.stdout
     assert {p.name for p in (tmp_path/"plots").iterdir()}=={"geometry.png","shear_flow.png","stress_vm.png"}
-    assert (tmp_path/"report.md").read_text(encoding="utf-8").startswith("# ThinWallX")
+    assert (tmp_path/"report.md").read_text(encoding="utf-8").startswith("# Sectalix")
     assert from_json((tmp_path/"results.json").read_text()).value.max_sigma_vm>0
 
 
@@ -131,7 +131,7 @@ class Block(importlib.abc.MetaPathFinder):
         if fullname == 'matplotlib' or fullname.startswith('matplotlib.'):
             raise ModuleNotFoundError('matplotlib intentionally unavailable')
 sys.meta_path.insert(0, Block())
-from thinwallx.cli import main
+from sectalix.cli import main
 raise SystemExit(main(sys.argv[1:]))
 """
     env=dict(os.environ,PYTHONPATH=str(ROOT/"src"))
@@ -167,4 +167,3 @@ def test_unit_mismatch(tmp_path):
     write_json(AppliedLoads(N=1),loads,units=UnitSystem("m","N"))
     p=run("analyze",sec,"--loads",loads)
     assert p.returncode==2 and "units differ" in p.stderr
-

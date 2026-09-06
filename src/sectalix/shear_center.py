@@ -1,4 +1,4 @@
-"""Exact thin-walled shear-center analysis for open sections (ThinWallX v0.3).
+"""Exact thin-walled shear-center analysis for open sections (Sectalix v0.3).
 
 Computes the shear-center location S = (x_s, y_s) and centroid-relative offsets
 e_s = [e_x, e_y]^T using exact closed-form torque integration of the v0.2 physical
@@ -29,12 +29,12 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from thinwallx.exceptions import GeometryError
-from thinwallx.shear_flow import ShearFlowResult, calculate_shear_flow
-from thinwallx.shear_load import ShearLoad
+from sectalix.exceptions import GeometryError
+from sectalix.shear_flow import ShearFlowResult, calculate_shear_flow
+from sectalix.shear_load import ShearLoad
 
 if TYPE_CHECKING:
-    from thinwallx.section import Section
+    from sectalix.section import Section
 
 
 def compute_shear_flow_torque(result: ShearFlowResult) -> float:
@@ -237,12 +237,12 @@ def compute_shear_center(
         GeometryError: If section is invalid or values are non-finite.
         SingularSectionError: If the section inertia matrix is singular/rank-deficient.
     """
-    from thinwallx.section import Section
+    from sectalix.section import Section
 
     if not isinstance(section, Section):
         raise GeometryError(f"Expected a Section instance, got {type(section).__name__}.")
     if hasattr(section, "is_closed") and section.is_closed:
-        from thinwallx.closed_torsion import compute_closed_shear_center
+        from sectalix.closed_torsion import compute_closed_shear_center
         return compute_closed_shear_center(section, safety_factor=safety_factor)
 
     section.validate()

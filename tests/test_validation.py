@@ -6,9 +6,9 @@ testable exceptions (GeometryError, TopologyError).
 
 import pytest
 
-from thinwallx.exceptions import GeometryError, TopologyError
-from thinwallx.primitives import Node, Segment
-from thinwallx.section import Section
+from sectalix.exceptions import GeometryError, TopologyError
+from sectalix.primitives import Node, Segment
+from sectalix.section import Section
 
 
 class TestGeometryValidation:

@@ -1,7 +1,7 @@
-# ThinWallX — Project Specification
+# Sectalix — Project Specification
 
 ## Purpose
-ThinWallX is a numerical analysis tool for arbitrary thin-walled structural sections.
+Sectalix is a numerical analysis tool for arbitrary thin-walled structural sections.
 
 The project focuses on engineering quantities that are meaningful for thin-walled steel and box-type sections, while keeping the implementation transparent, testable, and mathematically traceable.
 

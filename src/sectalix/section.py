@@ -7,20 +7,20 @@ from typing import Sequence, TYPE_CHECKING
 
 import numpy as np
 
-from thinwallx.primitives import Node, Segment
-from thinwallx.properties import SectionProperties, compute_properties
-from thinwallx.shear_center import ShearCenterResult, compute_shear_center
-from thinwallx.shear_flow import ShearFlowResult, calculate_shear_flow
-from thinwallx.shear_load import ShearLoad
-from thinwallx.torsion import (
+from sectalix.primitives import Node, Segment
+from sectalix.properties import SectionProperties, compute_properties
+from sectalix.shear_center import ShearCenterResult, compute_shear_center
+from sectalix.shear_flow import ShearFlowResult, calculate_shear_flow
+from sectalix.shear_load import ShearLoad
+from sectalix.torsion import (
     SegmentWarping,
     TorsionWarpingResult,
     compute_torsion_warping,
 )
-from thinwallx.validation import validate_section_geometry_and_topology
+from sectalix.validation import validate_section_geometry_and_topology
 
 if TYPE_CHECKING:
-    from thinwallx.stress import AppliedLoads, StressRecoveryResult
+    from sectalix.stress import AppliedLoads, StressRecoveryResult
 
 
 
@@ -35,7 +35,7 @@ class Section:
 
     def calculate_stresses(self, loads: AppliedLoads) -> StressRecoveryResult:
         """Recover v0.7 stresses; inherited by ClosedSection and MixedSection."""
-        from thinwallx.stress import calculate_stresses
+        from sectalix.stress import calculate_stresses
         return calculate_stresses(self, loads)
 
     def stresses(self, loads: AppliedLoads) -> StressRecoveryResult:

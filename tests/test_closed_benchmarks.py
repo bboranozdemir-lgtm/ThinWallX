@@ -1,4 +1,4 @@
-"""Comprehensive analytical benchmarks and invariance tests for closed sections (ThinWallX v0.5).
+"""Comprehensive analytical benchmarks and invariance tests for closed sections (Sectalix v0.5).
 
 Covers:
 - Benchmark 1: Single-cell rectangular box Bredt-Batho J = 2*a^2*b^2*t / (a + b).
@@ -19,10 +19,10 @@ import sys
 import numpy as np
 import pytest
 
-from thinwallx.closed_section import ClosedSection
-from thinwallx.closed_shear_flow import calculate_closed_shear_flow
-from thinwallx.primitives import Node, Segment
-from thinwallx.shear_load import ShearLoad
+from sectalix.closed_section import ClosedSection
+from sectalix.closed_shear_flow import calculate_closed_shear_flow
+from sectalix.primitives import Node, Segment
+from sectalix.shear_load import ShearLoad
 
 
 # ==============================================================================
@@ -397,7 +397,7 @@ class TestClosedBenchmarks:
     def test_nonfinite_and_singular_failures(self) -> None:
         """Criteria 45-46: Non-finite inputs and singular matrices must fail explicitly."""
         sec = make_rect_box(100.0, 50.0, 2.0)
-        from thinwallx.exceptions import GeometryError, SingularSectionError
+        from sectalix.exceptions import GeometryError, SingularSectionError
 
         with pytest.raises(GeometryError):
             sec.torsion_properties(safety_factor=float("nan"))

@@ -4,8 +4,8 @@ from dataclasses import replace
 import math
 
 import pytest
-from thinwallx import AppliedLoads
-from thinwallx.dxf import loads_dxf
+from sectalix import AppliedLoads
+from sectalix.dxf import loads_dxf
 from tests.test_dxf_import import document, line, lw, poly, options
 
 
@@ -72,7 +72,7 @@ def test_t37_barbell():
 
 @pytest.mark.parametrize("cut",[Q(1,6),Q(1,4),Q(9,20),Q(1,2)])
 def test_t43_closed_cut_oracle(cut):
-    from thinwallx import calculate_closed_shear_flow
+    from sectalix import calculate_closed_shear_flow
     b,h,t,vy=Q(4),Q(2),Q(1,100),Q(1)
     sec=loads_dxf(document(lw([(-2,-1),(2,-1),(2,1),(-2,1)],True)),options=options()).section
     bottom=next(i for i,s in enumerate(sec.segments) if s.p1.y==s.p2.y==-1)

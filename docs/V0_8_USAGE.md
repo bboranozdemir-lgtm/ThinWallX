@@ -1,12 +1,12 @@
-# ThinWallX v0.8 — kullanım
+# Sectalix v0.8 interchange format — kullanım
 
-Bu sürüm adaptör modülleri ekler; v0.1–v0.7 mekanik kodu değişmez. API'leri doğrudan ilgili modülden import edin. v0.8 kullanıcı onayıyla resmen dondurulmuştur; paket sürümü 0.8.0'dır.
+Bu belge, uygulama markasından bağımsız v0.8 interchange formatını açıklar. v0.1–v0.7 mekanik kodu değişmez; `format: "thinwallx"` alanı geriye dönük uyumluluk için korunur. API'leri doğrudan ilgili modülden import edin.
 
 ## JSON
 
 ~~~python
-from thinwallx import Node, Segment, Section, AppliedLoads
-from thinwallx.serialization import (
+from sectalix import Node, Segment, Section, AppliedLoads
+from sectalix.serialization import (
     UnitSystem, to_dict, from_dict, to_json, from_json, write_json, read_json,
 )
 
@@ -24,7 +24,7 @@ assert restored_section.segments == section.segments
 
 from_dict/from_json/read_json bir DecodedDocument döndürür: value ve units. to_dict/to_json/write_json hem ham nesne hem bu zarfı kabul eder. Birim etiketi sayı dönüştürmez; mevcut zarfı farklı birimle yeniden etiketleme reddedilir.
 
-Fiziksel değerler kanonik float.hex string kaydıdır; decimal JSON number kabul edilmez. Signed zero ve alt-normal sayılar bit düzeyinde korunur. JSON şeması schemas/thinwallx-0.8.schema.json dosyasındadır; çapraz referans/topoloji/peak doğrulaması Python okuyucusunda uygulanır.
+Fiziksel değerler kanonik float.hex string kaydıdır; decimal JSON number kabul edilmez. Signed zero ve alt-normal sayılar bit düzeyinde korunur. JSON şeması schemas/sectalix-0.8.schema.json dosyasındadır; çapraz referans/topoloji/peak doğrulaması Python okuyucusunda uygulanır.
 
 Desteklenen ID'ler None, str, int, bool, sonlu float ve bu tiplerden tuple'dır. Özel Python nesneleri taşınamaz. Result sözlüğü ID'leri string'e çevrilmez.
 
@@ -35,7 +35,7 @@ write_json varsayılan olarak mevcut dosyayı ezmez. overwrite=True yalnız aç�
 ## ASCII DXF
 
 ~~~python
-from thinwallx.dxf import DxfImportOptions, ThicknessMap, read_dxf
+from sectalix.dxf import DxfImportOptions, ThicknessMap, read_dxf
 
 options = DxfImportOptions(
     source_length_unit="mm",
@@ -68,8 +68,8 @@ python -m pip install -e ".[plots]"
 ~~~
 
 ~~~python
-from thinwallx import AppliedLoads
-from thinwallx.plotting import (
+from sectalix import AppliedLoads
+from sectalix.plotting import (
     plot_geometry, plot_shear_flow, plot_stresses,
     GeometryPlotOptions, StressPlotOptions,
 )
@@ -97,7 +97,7 @@ Kaynak depoda examples/sample_sections altında açık L, kapalı kutu ve barbel
 
 ~~~console
 python examples/quickstart_api.py
-thinwallx inspect examples/sample_sections/rectangle.dxf
+sectalix inspect examples/sample_sections/rectangle.dxf
 python -m pytest -W error tests/test_serialization.py tests/test_dxf_import.py tests/test_dxf_benchmarks.py tests/test_plotting.py
 python -m pytest -W error
 ~~~

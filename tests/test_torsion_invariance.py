@@ -1,4 +1,4 @@
-"""Invariance and physical symmetry tests for ThinWallX v0.4 Torsion and Warping.
+"""Invariance and physical symmetry tests for Sectalix v0.4 Torsion and Warping.
 
 Verifies:
 1. Root independence of normalized sectorial field and C_w.
@@ -16,9 +16,9 @@ import math
 import numpy as np
 import pytest
 
-from thinwallx.primitives import Node, Segment
-from thinwallx.section import Section
-from thinwallx.torsion import compute_torsion_warping
+from sectalix.primitives import Node, Segment
+from sectalix.section import Section
+from sectalix.torsion import compute_torsion_warping
 
 
 def make_channel_section() -> Section:

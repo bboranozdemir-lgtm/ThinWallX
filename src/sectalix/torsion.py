@@ -1,4 +1,4 @@
-"""Exact open-section Saint-Venant torsion and warping analysis (ThinWallX v0.4).
+"""Exact open-section Saint-Venant torsion and warping analysis (Sectalix v0.4).
 
 Computes:
 1. Saint-Venant open-section torsion constant J = sum_i (1/3) * L_i * t_i^3
@@ -32,12 +32,12 @@ from typing import TYPE_CHECKING, Sequence
 
 import numpy as np
 
-from thinwallx.exceptions import GeometryError
-from thinwallx.primitives import Node, Segment
-from thinwallx.validation import cluster_nodes
+from sectalix.exceptions import GeometryError
+from sectalix.primitives import Node, Segment
+from sectalix.validation import cluster_nodes
 
 if TYPE_CHECKING:
-    from thinwallx.section import Section
+    from sectalix.section import Section
 
 
 @dataclass(frozen=True)
@@ -231,12 +231,12 @@ def compute_torsion_warping(
         GeometryError: If section is invalid or intermediate/final values are non-finite.
         SingularSectionError: If the section inertia matrix is singular/rank-deficient.
     """
-    from thinwallx.section import Section
+    from sectalix.section import Section
 
     if not isinstance(section, Section):
         raise GeometryError(f"Expected a Section instance, got {type(section).__name__}.")
     if hasattr(section, "is_closed") and section.is_closed:
-        from thinwallx.closed_torsion import compute_closed_torsion_warping
+        from sectalix.closed_torsion import compute_closed_torsion_warping
         return compute_closed_torsion_warping(
             section, root_node_idx=root_node_idx, safety_factor=safety_factor
         )

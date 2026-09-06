@@ -6,10 +6,10 @@ import math
 import numpy as np
 import pytest
 
-from thinwallx.exceptions import GeometryError, TopologyError
-from thinwallx.primitives import Node, Segment
-from thinwallx.section import Section
-from thinwallx.validation import cluster_nodes
+from sectalix.exceptions import GeometryError, TopologyError
+from sectalix.primitives import Node, Segment
+from sectalix.section import Section
+from sectalix.validation import cluster_nodes
 
 
 def _asymmetric_section() -> Section:

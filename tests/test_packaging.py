@@ -9,7 +9,7 @@ import tarfile
 import venv
 import zipfile
 
-from thinwallx import __version__
+from sectalix import __version__
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ("THEORY_AND_CONVENTIONS.md", "CLI_REFERENCE.md", "VERIFICATION_BENCHMARKS.md")
@@ -24,12 +24,12 @@ def checked(args: list[str], cwd: Path, env: dict[str, str]) -> str:
 def test_t31_t32_version_entrypoint() -> None:
     metadata = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
     assert f'version = "{__version__}"' in metadata
-    assert __version__ == "1.0.0"
-    assert 'thinwallx = "thinwallx.cli:main"' in metadata
+    assert __version__ == "1.0.1"
+    assert 'sectalix = "sectalix.cli:main"' in metadata
 
 
 def test_t34_no_unresolved_markers() -> None:
-    for source in (ROOT / "src/thinwallx").glob("*.py"):
+    for source in (ROOT / "src/sectalix").glob("*.py"):
         assert not re.search(r"\b(TODO|FIXME|NotImplementedError)\b", source.read_text(encoding="utf-8")), source
     # Returning NotImplemented from binary operator dispatch is required Python behavior.
 
@@ -70,18 +70,20 @@ def test_t33_t36_build_install_wheel_and_sdist(tmp_path: Path) -> None:
     wheel = next((project / "dist").glob("*.whl"))
     archive = next((project / "dist").glob("*.tar.gz"))
     with zipfile.ZipFile(wheel) as z:
-        assert "thinwallx/cli.py" in z.namelist()
+        assert "sectalix/cli.py" in z.namelist()
+        assert not any(name.startswith("thinwallx/") for name in z.namelist())
         assert any(n.endswith("THEORY_AND_CONVENTIONS.md") for n in z.namelist())
     with tarfile.open(archive) as t:
         assert any(n.endswith("tests/test_cli.py") for n in t.getnames())
-        assert any(n.endswith("schemas/thinwallx-0.8.schema.json") for n in t.getnames())
+        assert any(n.endswith("schemas/sectalix-0.8.schema.json") for n in t.getnames())
+        assert not any("/src/thinwallx/" in name for name in t.getnames())
     target = tmp_path / "installed"
     venv.EnvBuilder(with_pip=True, symlinks=(os.name != "nt"), system_site_packages=True).create(target)
     binary = target / ("Scripts" if os.name == "nt" else "bin")
     python = binary / ("python.exe" if os.name == "nt" else "python")
     checked([str(python), "-m", "pip", "install", "--no-deps", "--no-index", str(wheel)], tmp_path, env)
-    console = binary / ("thinwallx.exe" if os.name == "nt" else "thinwallx")
-    assert checked([str(console), "--version"], tmp_path, env).strip() == "ThinWallX 1.0.0"
-    assert "inspect" in checked([str(python), "-m", "thinwallx", "--help"], tmp_path, env)
-    imported = checked([str(python), "-c", "import thinwallx; print(thinwallx.__file__)"], tmp_path, env)
+    console = binary / ("sectalix.exe" if os.name == "nt" else "sectalix")
+    assert checked([str(console), "--version"], tmp_path, env).strip() == "Sectalix 1.0.1"
+    assert "inspect" in checked([str(python), "-m", "sectalix", "--help"], tmp_path, env)
+    imported = checked([str(python), "-c", "import sectalix; print(sectalix.__file__)"], tmp_path, env)
     assert target.resolve().as_posix().lower() in Path(imported.strip()).resolve().as_posix().lower()

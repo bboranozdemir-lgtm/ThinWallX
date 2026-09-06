@@ -1,4 +1,4 @@
-"""Exact thin-walled shear-flow analysis for open sections (ThinWallX v0.2).
+"""Exact thin-walled shear-flow analysis for open sections (Sectalix v0.2).
 
 Solves C * alpha = V for arbitrary transverse shear load V = [Vx, Vy]^T and computes
 exact closed-form shear flow q(s) along straight centerline segments for open tree topologies.
@@ -13,13 +13,13 @@ from typing import TYPE_CHECKING, Sequence
 
 import numpy as np
 
-from thinwallx.exceptions import GeometryError, SingularSectionError
-from thinwallx.primitives import Segment
-from thinwallx.shear_load import ShearLoad
-from thinwallx.validation import cluster_nodes
+from sectalix.exceptions import GeometryError, SingularSectionError
+from sectalix.primitives import Segment
+from sectalix.shear_load import ShearLoad
+from sectalix.validation import cluster_nodes
 
 if TYPE_CHECKING:
-    from thinwallx.section import Section
+    from sectalix.section import Section
 
 
 @dataclass(frozen=True)
@@ -343,12 +343,12 @@ def calculate_shear_flow(
         GeometryError: If shear loads are non-finite.
         SingularSectionError: If the section inertia matrix C is singular/rank-deficient.
     """
-    from thinwallx.section import Section
+    from sectalix.section import Section
 
     if not isinstance(section, Section):
         raise GeometryError(f"Expected a Section instance, got {type(section).__name__}.")
     if hasattr(section, "is_closed") and section.is_closed:
-        from thinwallx.closed_shear_flow import calculate_closed_shear_flow
+        from sectalix.closed_shear_flow import calculate_closed_shear_flow
         return calculate_closed_shear_flow(section, vx=vx, vy=vy, safety_factor=safety_factor)  # type: ignore[return-value]
 
     section.validate()

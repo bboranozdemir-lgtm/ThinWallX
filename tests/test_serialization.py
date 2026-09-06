@@ -8,8 +8,8 @@ from dataclasses import replace
 
 import pytest
 
-from thinwallx import Node, Segment, Section, ClosedSection, MixedSection, AppliedLoads, GeometryError
-from thinwallx.serialization import (
+from sectalix import Node, Segment, Section, ClosedSection, MixedSection, AppliedLoads, GeometryError
+from sectalix.serialization import (
     DecodeLimits, UnitSystem, from_dict, from_json, to_dict, to_json, read_json, write_json,
 )
 
@@ -35,6 +35,14 @@ def test_t01_t03_section_roundtrip(cls):
 def test_t03_pure_open_mixed():
     source = MixedSection(shape().segments)
     assert type(from_json(to_json(source)).value) is MixedSection
+
+
+def test_legacy_v08_wire_identifier_remains_readable():
+    wire = json.loads(to_json(shape()))
+    wire["format"] = "thinwallx"
+    document = from_json(json.dumps(wire))
+    assert type(document.value) is Section
+    assert to_dict(document)["format"] == "thinwallx"
 
 
 @pytest.mark.parametrize("x", [0., -0., 5e-324, -5e-324, sys.float_info.max, math.nextafter(1., 2.)])
@@ -141,7 +149,7 @@ def test_t15_atomic_and_deterministic(tmp_path):
     with pytest.raises(FileExistsError):
         write_json(source, a)
     write_json(source, a, overwrite=True)
-    assert not list(tmp_path.glob(".thinwallx-*"))
+    assert not list(tmp_path.glob(".sectalix-*"))
 
 
 def test_t06_handwritten_wire():
@@ -165,7 +173,7 @@ def test_t01_near_coincident_raw_endpoints():
 
 
 def test_t11_unvalidated_cycle_rejected():
-    from thinwallx import TopologyError
+    from sectalix import TopologyError
     sec = Section(shape(ClosedSection).segments, validate=False)
     with pytest.raises(TopologyError):
         to_dict(sec)
@@ -179,7 +187,7 @@ def test_t14_surrogate_and_wrong_units():
 
 
 def test_t15_failed_atomic_write(tmp_path, monkeypatch):
-    from thinwallx.serialization import _atomic_write
+    from sectalix.serialization import _atomic_write
     def fail(path):
         path.write_text("partial", encoding="utf-8")
         raise OSError("simulated write failure")

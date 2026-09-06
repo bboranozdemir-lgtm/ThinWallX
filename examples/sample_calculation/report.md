@@ -1,4 +1,4 @@
-# ThinWallX v1.0 Calculation Report
+# Sectalix v1.0 Calculation Report
 
 Generated: 2026-09-06T14:35:24.596122+00:00
 

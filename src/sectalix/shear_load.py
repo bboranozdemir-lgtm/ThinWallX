@@ -1,4 +1,4 @@
-"""Shear load representation for ThinWallX v0.2."""
+"""Shear load representation for Sectalix v0.2."""
 
 from __future__ import annotations
 
@@ -6,7 +6,7 @@ from dataclasses import dataclass
 import math
 import numpy as np
 
-from thinwallx.exceptions import GeometryError
+from sectalix.exceptions import GeometryError
 
 
 @dataclass(frozen=True)

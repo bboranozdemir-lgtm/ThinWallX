@@ -1,4 +1,4 @@
-"""Mixed open-closed transverse shear-flow analysis (ThinWallX v0.6).
+"""Mixed open-closed transverse shear-flow analysis (Sectalix v0.6).
 
 Implements the exact thin-walled mixed open-closed formulation:
 1. Spanning tree containing all open bridges E_o; exactly n_c chords chosen strictly from E_c.
@@ -20,14 +20,14 @@ from typing import TYPE_CHECKING, Sequence
 
 import numpy as np
 
-from thinwallx.exceptions import GeometryError, SingularSectionError, TopologyError
-from thinwallx.primitives import Node, Segment
-from thinwallx.shear_flow import _compute_open_tree_flows
-from thinwallx.shear_load import ShearLoad
+from sectalix.exceptions import GeometryError, SingularSectionError, TopologyError
+from sectalix.primitives import Node, Segment
+from sectalix.shear_flow import _compute_open_tree_flows
+from sectalix.shear_load import ShearLoad
 
 if TYPE_CHECKING:
-    from thinwallx.mixed_topology import MixedTopology
-    from thinwallx.section import Section
+    from sectalix.mixed_topology import MixedTopology
+    from sectalix.section import Section
 
 
 @dataclass(frozen=True)
@@ -186,7 +186,7 @@ def calculate_mixed_shear_flow(
             f"cut_param must lie strictly inside (0, 1). Got {cut_param}."
         )
 
-    from thinwallx.mixed_topology import MixedTopology, extract_mixed_topology
+    from sectalix.mixed_topology import MixedTopology, extract_mixed_topology
 
     if hasattr(section, "mixed_topology") and isinstance(
         section.mixed_topology, MixedTopology

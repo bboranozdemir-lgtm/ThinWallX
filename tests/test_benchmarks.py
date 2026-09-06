@@ -16,8 +16,8 @@ import math
 import numpy as np
 import pytest
 
-from thinwallx.primitives import Node, Segment
-from thinwallx.section import Section
+from sectalix.primitives import Node, Segment
+from sectalix.section import Section
 
 
 class TestSingleWallBenchmark:

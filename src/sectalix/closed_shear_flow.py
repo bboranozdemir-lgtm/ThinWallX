@@ -1,4 +1,4 @@
-"""Closed-section transverse shear-flow analysis (ThinWallX v0.5).
+"""Closed-section transverse shear-flow analysis (Sectalix v0.5).
 
 Implements the exact thin-walled closed-section formulation:
 1. Virtual cut-open topology preserving 100% of physical material.
@@ -20,14 +20,14 @@ from typing import TYPE_CHECKING, Sequence
 
 import numpy as np
 
-from thinwallx.exceptions import GeometryError, SingularSectionError
-from thinwallx.primitives import Node, Segment
-from thinwallx.shear_flow import SegmentShearFlow, _compute_open_tree_flows
-from thinwallx.shear_load import ShearLoad
+from sectalix.exceptions import GeometryError, SingularSectionError
+from sectalix.primitives import Node, Segment
+from sectalix.shear_flow import SegmentShearFlow, _compute_open_tree_flows
+from sectalix.shear_load import ShearLoad
 
 if TYPE_CHECKING:
-    from thinwallx.cells import CellTopology
-    from thinwallx.section import Section
+    from sectalix.cells import CellTopology
+    from sectalix.section import Section
 
 
 @dataclass(frozen=True)
@@ -244,7 +244,7 @@ def calculate_closed_shear_flow(
     Returns:
         ClosedShearFlowResult containing exact physical segment flows and verification.
     """
-    from thinwallx.cells import CellTopology, extract_cell_topology
+    from sectalix.cells import CellTopology, extract_cell_topology
 
     if not math.isfinite(cut_param) or cut_param <= 0.01 or cut_param >= 0.99:
         raise GeometryError(

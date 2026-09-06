@@ -2,9 +2,12 @@
 
 ## Model and applicability
 
-ThinWallX uses straight centerline segments with constant positive thickness per segment. It assumes a homogeneous, linear-elastic thin wall. Area is t ds, not a union of finite-width polygons: corner overlaps, fillets and local plate bending are omitted. Buckling, yielding redistribution, fatigue, connections and design-code checks are outside scope. J and Cw are geometric constants; stiffnesses are GJ and ECw when compatible material properties are supplied outside this section library.
+Sectalix uses straight centerline segments with constant positive thickness per segment. It assumes a homogeneous, linear-elastic thin wall. Area is t ds, not a union of finite-width polygons: corner overlaps, fillets and local plate bending are omitted. Buckling, yielding redistribution, fatigue, connections and design-code checks are outside scope. J and Cw are geometric constants; stiffnesses are GJ and ECw when compatible material properties are supplied outside this section library.
 
-The frozen source is the executable convention. v1.0 adds orchestration and presentation, not new mechanics. See [verification](VERIFICATION_BENCHMARKS.md) and [CLI reference](CLI_REFERENCE.md).
+The frozen source is the executable convention. Sectalix application versions and the
+v0.8 interchange schema version are versioned independently. The rename preserves the
+legacy `format: "thinwallx"` wire identifier so existing files remain readable. See
+[verification](VERIFICATION_BENCHMARKS.md) and [CLI reference](CLI_REFERENCE.md).
 
 ## Axes, loads and resultants
 

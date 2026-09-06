@@ -1,4 +1,4 @@
-"""Mixed open-closed Saint-Venant torsion and warping mechanics (ThinWallX v0.6).
+"""Mixed open-closed Saint-Venant torsion and warping mechanics (Sectalix v0.6).
 
 Implements:
 1. Hybrid Saint-Venant torsion constant:
@@ -25,13 +25,13 @@ from typing import TYPE_CHECKING, Sequence
 
 import numpy as np
 
-from thinwallx.exceptions import GeometryError
-from thinwallx.shear_center import ShearCenterResult
-from thinwallx.torsion import SegmentWarping, TorsionWarpingResult
+from sectalix.exceptions import GeometryError
+from sectalix.shear_center import ShearCenterResult
+from sectalix.torsion import SegmentWarping, TorsionWarpingResult
 
 if TYPE_CHECKING:
-    from thinwallx.mixed_topology import MixedTopology
-    from thinwallx.section import Section
+    from sectalix.mixed_topology import MixedTopology
+    from sectalix.section import Section
 
 
 @dataclass(frozen=True)
@@ -318,7 +318,7 @@ def compute_mixed_shear_center(
     Returns:
         ShearCenterResult containing offsets (ex, ey) and coordinates (x_s, y_s).
     """
-    from thinwallx.mixed_shear_flow import calculate_mixed_shear_flow
+    from sectalix.mixed_shear_flow import calculate_mixed_shear_flow
 
     res_x = calculate_mixed_shear_flow(
         section=section,
@@ -365,7 +365,7 @@ def compute_mixed_torsion_constant(
     Returns:
         tuple (J_total, J_BB, J_open)
     """
-    from thinwallx.mixed_topology import MixedTopology, extract_mixed_topology
+    from sectalix.mixed_topology import MixedTopology, extract_mixed_topology
 
     if hasattr(section, "mixed_topology") and isinstance(
         section.mixed_topology, MixedTopology
@@ -406,7 +406,7 @@ def compute_mixed_torsion_warping(
     Returns:
         MixedTorsionWarpingResult containing J_total, J_BB, J_open, C_w, normalized omega, and F.
     """
-    from thinwallx.mixed_topology import MixedTopology, extract_mixed_topology
+    from sectalix.mixed_topology import MixedTopology, extract_mixed_topology
 
     if hasattr(section, "mixed_topology") and isinstance(
         section.mixed_topology, MixedTopology

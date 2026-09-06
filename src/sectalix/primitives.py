@@ -1,7 +1,7 @@
 """Geometric primitives: Node and Segment dataclasses.
 
 All line integrals implemented herein follow the exact closed-form straight-segment
-formulation specified in ThinWallX ACTIVE_PHASE.md.
+formulation specified in Sectalix ACTIVE_PHASE.md.
 """
 
 from __future__ import annotations
@@ -10,7 +10,7 @@ from dataclasses import dataclass
 import math
 from typing import Any
 
-from thinwallx.exceptions import GeometryError
+from sectalix.exceptions import GeometryError
 
 
 @dataclass(frozen=True)
@@ -105,7 +105,7 @@ class Segment:
         Derivation:
             Parameterize line s in [0, L]: x(s) = x1 + (x2 - x1)*s/L.
             \\int_0^L x(s) ds = x1*L + (x2 - x1)*L/2 = L*(x1 + x2)/2.
-            Source: ThinWallX ACTIVE_PHASE.md, Exact Segment Integrals.
+            Source: Sectalix ACTIVE_PHASE.md, Exact Segment Integrals.
         """
         return self.length * (self.p1.x + self.p2.x) / 2.0
 
@@ -115,7 +115,7 @@ class Segment:
         Derivation:
             Parameterize line s in [0, L]: y(s) = y1 + (y2 - y1)*s/L.
             \\int_0^L y(s) ds = y1*L + (y2 - y1)*L/2 = L*(y1 + y2)/2.
-            Source: ThinWallX ACTIVE_PHASE.md, Exact Segment Integrals.
+            Source: Sectalix ACTIVE_PHASE.md, Exact Segment Integrals.
         """
         return self.length * (self.p1.y + self.p2.y) / 2.0
 
@@ -129,7 +129,7 @@ class Segment:
             \\int_0^L (s/L)^2 ds = L/3.
             Expanding (x1*(1-s/L) + x2*(s/L))^2 yields:
             (L/3)*(x1^2 + x1*x2 + x2^2).
-            Source: ThinWallX ACTIVE_PHASE.md, Exact Segment Integrals.
+            Source: Sectalix ACTIVE_PHASE.md, Exact Segment Integrals.
         """
         x1, x2 = self.p1.x, self.p2.x
         return (self.length / 3.0) * (x1 * x1 + x1 * x2 + x2 * x2)
@@ -139,7 +139,7 @@ class Segment:
 
         Derivation:
             Analogous to int_x2 with y coordinates.
-            Source: ThinWallX ACTIVE_PHASE.md, Exact Segment Integrals.
+            Source: Sectalix ACTIVE_PHASE.md, Exact Segment Integrals.
         """
         y1, y2 = self.p1.y, self.p2.y
         return (self.length / 3.0) * (y1 * y1 + y1 * y2 + y2 * y2)
@@ -155,7 +155,7 @@ class Segment:
             Combining terms:
             x1*y1*(L/3) + (x1*y2 + x2*y1)*(L/6) + x2*y2*(L/3)
             = (L/6) * (2*x1*y1 + x1*y2 + x2*y1 + 2*x2*y2).
-            Source: ThinWallX ACTIVE_PHASE.md, Exact Segment Integrals.
+            Source: Sectalix ACTIVE_PHASE.md, Exact Segment Integrals.
         """
         x1, y1 = self.p1.x, self.p1.y
         x2, y2 = self.p2.x, self.p2.y

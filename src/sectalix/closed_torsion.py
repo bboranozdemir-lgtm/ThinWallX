@@ -1,4 +1,4 @@
-"""Closed-section Bredt-Batho Saint-Venant torsion and warping mechanics (ThinWallX v0.5).
+"""Closed-section Bredt-Batho Saint-Venant torsion and warping mechanics (Sectalix v0.5).
 
 Implements:
 1. Direct solve of Bredt-Batho multi-cell torsion equations:
@@ -28,14 +28,14 @@ from typing import TYPE_CHECKING, Sequence
 
 import numpy as np
 
-from thinwallx.exceptions import GeometryError
-from thinwallx.primitives import Segment
-from thinwallx.shear_center import ShearCenterResult
-from thinwallx.torsion import SegmentWarping, TorsionWarpingResult
+from sectalix.exceptions import GeometryError
+from sectalix.primitives import Segment
+from sectalix.shear_center import ShearCenterResult
+from sectalix.torsion import SegmentWarping, TorsionWarpingResult
 
 if TYPE_CHECKING:
-    from thinwallx.cells import CellTopology
-    from thinwallx.section import Section
+    from sectalix.cells import CellTopology
+    from sectalix.section import Section
 
 
 @dataclass(frozen=True)
@@ -74,7 +74,7 @@ def compute_closed_shear_center(
     Returns:
         ShearCenterResult containing offsets (ex, ey) and coordinates (x_s, y_s).
     """
-    from thinwallx.closed_shear_flow import calculate_closed_shear_flow
+    from sectalix.closed_shear_flow import calculate_closed_shear_flow
 
     # Basis load 1: unit shear in +x direction [1, 0]^T
     res_x = calculate_closed_shear_flow(
@@ -129,7 +129,7 @@ def compute_closed_torsion_warping(
     Returns:
         ClosedTorsionWarpingResult containing J_BB, C_w, normalized omega field, and Bredt quantities.
     """
-    from thinwallx.cells import CellTopology, extract_cell_topology
+    from sectalix.cells import CellTopology, extract_cell_topology
 
     if hasattr(section, "cell_topology") and isinstance(
         section.cell_topology, CellTopology

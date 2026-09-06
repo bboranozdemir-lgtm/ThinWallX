@@ -1,4 +1,4 @@
-"""Analytical benchmark tests for open-section shear flow (ThinWallX v0.2).
+"""Analytical benchmark tests for open-section shear flow (Sectalix v0.2).
 
 Implements all required benchmark families from ACTIVE_PHASE.md:
 1. Symmetric open section (channel / C-section) under single-axis shear vs textbook closed-form solution.
@@ -14,9 +14,9 @@ import math
 import numpy as np
 import pytest
 
-from thinwallx.primitives import Node, Segment
-from thinwallx.section import Section
-from thinwallx.shear_load import ShearLoad
+from sectalix.primitives import Node, Segment
+from sectalix.section import Section
+from sectalix.shear_load import ShearLoad
 
 
 class TestSymmetricChannelBenchmark:

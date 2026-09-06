@@ -1,4 +1,4 @@
-"""Validation and error handling tests for ThinWallX v0.4 Torsion and Warping.
+"""Validation and error handling tests for Sectalix v0.4 Torsion and Warping.
 
 Verifies:
 1. Singular/rank-deficient sections raise SingularSectionError.
@@ -13,10 +13,10 @@ from __future__ import annotations
 import math
 import pytest
 
-from thinwallx.exceptions import GeometryError, SingularSectionError
-from thinwallx.primitives import Node, Segment
-from thinwallx.section import Section
-from thinwallx.torsion import (
+from sectalix.exceptions import GeometryError, SingularSectionError
+from sectalix.primitives import Node, Segment
+from sectalix.section import Section
+from sectalix.torsion import (
     SegmentWarping,
     TorsionWarpingResult,
     compute_torsion_warping,

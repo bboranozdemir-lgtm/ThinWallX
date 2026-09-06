@@ -1,4 +1,4 @@
-"""Planar cell topology extraction and validation for closed sections (ThinWallX v0.5).
+"""Planar cell topology extraction and validation for closed sections (Sectalix v0.5).
 
 Implements deterministic planar face-walk extraction for straight-segment networks:
 - Node clustering and canonical representation
@@ -20,9 +20,9 @@ from typing import Sequence
 
 import numpy as np
 
-from thinwallx.exceptions import GeometryError, SingularSectionError, TopologyError
-from thinwallx.primitives import Node, Segment
-from thinwallx.validation import (
+from sectalix.exceptions import GeometryError, SingularSectionError, TopologyError
+from sectalix.primitives import Node, Segment
+from sectalix.validation import (
     _validate_node_tolerance,
     _validate_segment_intersections,
     cluster_nodes,

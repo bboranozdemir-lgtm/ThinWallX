@@ -1,13 +1,13 @@
-# v1.0.0 release seal and distribution guide
+# Sectalix v1.0.1 release and Trusted Publishing guide
 
-The user authorized formal freezing. ACTIVE_PHASE.md records FROZEN status; the
-computational source and tests are immutable for this release. The local annotated
-tag v1.0.0 identifies the release commit. A Git tag is a reference, not a cryptographic
-signature or a write-protection mechanism. Protect main and release tags on GitHub.
+The historical ThinWallX v1.0.0 tag remains unchanged. Sectalix v1.0.1 is the
+rename/release-preparation version; create its tag only after review. Protect main
+and release tags on GitHub.
 
 ## Local verification and CI
 
-Run `python -m pytest -W error`: the frozen suite contains 559 tests.
+Run `python -m pytest -W error`: the frozen v1.0 core plus the v1.0.1
+compatibility regression contains 560 tests.
 The CI workflow targets Ubuntu, Windows and macOS with Python 3.10–3.13 (12 jobs).
 These hosted jobs can only be confirmed after pushing to GitHub; a local Windows
 run does not establish that all matrix combinations pass.
@@ -16,7 +16,8 @@ The tag-triggered publish.yml first calls the same full matrix, then builds fres
 wheel/sdist into release-dist (not the tracked historical dist directory), checks
 tag/version equality and runs strict Twine metadata validation. Verified archives
 are retained as a GitHub Actions artifact for 30 days. There is intentionally no
-automatic PyPI upload, credential or id-token permission.
+automatic upload is performed locally; the tag workflow uses OIDC only after the
+protected `pypi` environment is approved.
 
 The packaging tests invoke setuptools directly, so CI installs that backend and
 wheel explicitly in addition to the requested editable test/plot extras. This is
@@ -44,7 +45,7 @@ prove that FMA caused the original discrepancy.
 2. In this project directory replace YOUR_ACCOUNT with the actual account:
 
 ```sh
-git remote add origin https://github.com/YOUR_ACCOUNT/ThinWallX.git
+git remote add origin https://github.com/YOUR_ACCOUNT/Sectalix.git
 git push -u origin main --tags
 ```
 
@@ -55,13 +56,14 @@ git push -u origin main --tags
 
 ## PyPI: separate publication decision
 
-ThinWallX is officially distributed under the MIT License (see `LICENSE` in the repository
+Sectalix is officially distributed under the MIT License (see `LICENSE` in the repository
 root and `license = "MIT"` in `pyproject.toml`). Ensure the package name ownership is confirmed
 on PyPI before first upload. Any post-tag metadata or release updates follow semantic versioning.
 
-For manual publication, use the verified GitHub release artifact, not arbitrary
-files from a working directory. Set up a PyPI account with 2FA and a scoped upload
-credential; do not commit it. First validate and optionally exercise TestPyPI:
+Trusted Publishing is the required release path. Configure the publisher below,
+approve the protected `pypi` environment, and let the tag workflow publish the
+verified artifact. Manual upload is only a fallback after an explicit release
+review; never use arbitrary files from a working directory. For a manual dry run:
 
 ```sh
 python -m pip install twine
@@ -75,8 +77,10 @@ Supply credentials through Twine's secure prompting/keyring mechanism, never as
 committed text. TestPyPI and PyPI are separate accounts/credentials. Uploaded PyPI
 version filenames cannot simply be replaced; review before uploading.
 
-An alternative future configuration is PyPI Trusted Publishing with a protected
-GitHub environment and a separate minimal upload job. It is not enabled here.
+The publishing job uses a protected `pypi` GitHub Environment and
+`id-token: write`. Configure required reviewers before creating the tag. On PyPI,
+register a Trusted Publisher for owner `bboranozdemir-lgtm`, repository `Sectalix`,
+workflow `.github/workflows/publish.yml`, and environment `pypi`.
 
 Official references:
 

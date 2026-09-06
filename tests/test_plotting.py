@@ -11,8 +11,8 @@ from xml.etree import ElementTree
 import numpy as np
 import pytest
 
-from thinwallx import AppliedLoads, Section, Segment, Node
-from thinwallx.plotting import (
+from sectalix import AppliedLoads, Section, Segment, Node
+from sectalix.plotting import (
     PlotStyle, GeometryPlotOptions, ShearPlotOptions, StressPlotOptions,
     plot_geometry, plot_shear_flow, plot_stresses, _frame, _sample_points, _flow_candidates,
 )
@@ -56,7 +56,7 @@ def test_t46_t52_local_coordinates():
 
 def test_t47_isotropic(tmp_path):
     from tests.test_serialization import shape
-    from thinwallx import ClosedSection
+    from sectalix import ClosedSection
     p=[Node(0,0),Node(1,0),Node(1,1),Node(0,1)]
     sec=ClosedSection([Segment(p[i],p[(i+1)%4],.01) for i in range(4)])
     report=plot_geometry(sec,tmp_path/"iso.svg",options=GeometryPlotOptions(style=STYLE,show_principal_axes=True))
@@ -74,7 +74,7 @@ def test_t48_reverse_flow():
 
 
 def test_t49_closed_plot(tmp_path):
-    from thinwallx import ClosedSection
+    from sectalix import ClosedSection
     sec=shape(ClosedSection)
     plot_shear_flow(sec,sec.calculate_shear_flow(vx=0,vy=1),tmp_path/"closed.svg",options=ShearPlotOptions(style=STYLE))
 
@@ -124,15 +124,15 @@ def test_t58_title_and_t59_overwrite(tmp_path):
 
 
 def test_t44_no_matplotlib_imported():
-    code="import sys; import thinwallx; import thinwallx.serialization; import thinwallx.dxf; import thinwallx.plotting; assert 'matplotlib' not in sys.modules"
+    code="import sys; import sectalix; import sectalix.serialization; import sectalix.dxf; import sectalix.plotting; assert 'matplotlib' not in sys.modules"
     env=dict(os.environ,PYTHONPATH=str(Path("src").absolute()))
     subprocess.run([sys.executable,"-W","error","-c",code],env=env,check=True,capture_output=True)
 
 
 @pytest.mark.parametrize("fmt", ["svg","png"])
 def test_t54_clean_processes(tmp_path,fmt):
-    code="""from thinwallx import Section,Segment,Node
-from thinwallx.plotting import plot_geometry
+    code="""from sectalix import Section,Segment,Node
+from sectalix.plotting import plot_geometry
 import sys
 s=Section([Segment(Node(0,0),Node(1,1),.01)])
 plot_geometry(s,sys.argv[1])
@@ -153,13 +153,13 @@ def test_t59_failed_save_cleans(tmp_path,monkeypatch):
     with pytest.raises(OSError):
         plot_geometry(shape(),tmp_path/"fail.png",options=GeometryPlotOptions(style=STYLE))
     assert not (tmp_path/"fail.png").exists()
-    assert not list(tmp_path.glob(".thinwallx-*"))
+    assert not list(tmp_path.glob(".sectalix-*"))
     assert len(Gcf.get_all_fig_managers())==before
 
 
 @pytest.mark.parametrize("value", [5e-324, sys.float_info.max])
 def test_t52_extreme_field(tmp_path,value):
-    from thinwallx import SegmentStressProfile, StressRecoveryResult
+    from sectalix import SegmentStressProfile, StressRecoveryResult
     sec=shape()
     profiles={s.id:SegmentStressProfile(s.id,s.length,s.t,(0.,value),(0.,0.,0.),0.) for s in sec.segments}
     result=StressRecoveryResult(profiles,value,0,0.,sec.segments[0].p1.coords,None,0.,0.,0.,0.)
@@ -183,9 +183,9 @@ class Block(importlib.abc.MetaPathFinder):
         if fullname == 'matplotlib' or fullname.startswith('matplotlib.'):
             raise ModuleNotFoundError('blocked matplotlib')
 sys.meta_path.insert(0, Block())
-from thinwallx import Section, Segment, Node
-from thinwallx.serialization import to_json
-from thinwallx.plotting import plot_geometry
+from sectalix import Section, Segment, Node
+from sectalix.serialization import to_json
+from sectalix.plotting import plot_geometry
 s=Section([Segment(Node(0,0),Node(1,1),.01)])
 assert to_json(s)
 try:

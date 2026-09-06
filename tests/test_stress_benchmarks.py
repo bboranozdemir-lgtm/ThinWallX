@@ -10,7 +10,7 @@ import math
 
 import pytest
 
-from thinwallx import AppliedLoads, ClosedSection, MixedSection, Node, Section, Segment
+from sectalix import AppliedLoads, ClosedSection, MixedSection, Node, Section, Segment
 from tests.test_mixed_benchmarks import IndependentMixedOracle, _decimal_solve
 
 

@@ -1,13 +1,13 @@
-"""Custom exceptions for ThinWallX."""
+"""Custom exceptions for Sectalix."""
 
 from __future__ import annotations
 
 
-class ThinWallXError(Exception):
-    """Base exception class for all ThinWallX errors."""
+class SectalixError(Exception):
+    """Base exception class for all Sectalix errors."""
 
 
-class ValidationError(ThinWallXError):
+class ValidationError(SectalixError):
     """Raised when geometric or topological validation fails."""
 
 

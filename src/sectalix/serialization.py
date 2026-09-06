@@ -15,11 +15,11 @@ import re
 import tempfile
 from typing import Any, Callable
 
-from thinwallx.closed_section import ClosedSection
-from thinwallx.mixed_section import MixedSection
-from thinwallx.primitives import Node, Segment
-from thinwallx.section import Section
-from thinwallx.stress import AppliedLoads, SegmentStressProfile, StressRecoveryResult
+from sectalix.closed_section import ClosedSection
+from sectalix.mixed_section import MixedSection
+from sectalix.primitives import Node, Segment
+from sectalix.section import Section
+from sectalix.stress import AppliedLoads, SegmentStressProfile, StressRecoveryResult
 
 Serializable = Section | ClosedSection | MixedSection | AppliedLoads | StressRecoveryResult
 _LENGTH_UNITS = frozenset(("m", "mm", "cm", "in", "ft", "unspecified"))
@@ -251,6 +251,7 @@ def from_dict(data: Mapping[str, object], *, limits: DecodeLimits | None = None)
     limits = limits or DecodeLimits()
     _walk(data, limits)
     d = _record(data, ("format", "schema_version", "number_encoding", "kind", "units", "data"), "$")
+    # ``thinwallx`` is the v0.8 interchange identifier, not the application brand.
     if (d["format"], d["schema_version"], d["number_encoding"]) != ("thinwallx", "0.8", "float64-hex"):
         raise ValueError("$: unsupported format/version/encoding")
     units = UnitSystem(**_record(d["units"], ("length", "force"), "units"))
@@ -279,13 +280,13 @@ def to_dict(value: Serializable | DecodedDocument, *, units: UnitSystem | None =
     if type(value) in (Section, ClosedSection, MixedSection):
         # Validate raw geometry without recomputing section properties/caches.
         if type(value) is Section:
-            from thinwallx.validation import validate_section_geometry_and_topology
+            from sectalix.validation import validate_section_geometry_and_topology
             validate_section_geometry_and_topology(value.segments, node_tolerance=value._node_tolerance)
         elif type(value) is ClosedSection:
-            from thinwallx.cells import extract_cell_topology
+            from sectalix.cells import extract_cell_topology
             extract_cell_topology(value.segments, node_tolerance=value._node_tolerance, safety_factor=value._safety_factor)
         else:
-            from thinwallx.mixed_topology import extract_mixed_topology
+            from sectalix.mixed_topology import extract_mixed_topology
             extract_mixed_topology(value.segments, node_tolerance=value._node_tolerance, safety_factor=value._safety_factor)
         nodes, segments = [], []
         for i, s in enumerate(value.segments):
@@ -370,7 +371,7 @@ def _atomic_write(path: str | Path, writer: Callable[[Path], None], overwrite: b
     target = Path(path).absolute()
     if not overwrite and target.exists():
         raise FileExistsError(target)
-    fd, name = tempfile.mkstemp(prefix=".thinwallx-", suffix=target.suffix, dir=target.parent)
+    fd, name = tempfile.mkstemp(prefix=".sectalix-", suffix=target.suffix, dir=target.parent)
     os.close(fd)
     temporary = Path(name)
     try:

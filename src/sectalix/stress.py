@@ -15,10 +15,10 @@ from typing import Any, TYPE_CHECKING
 
 import numpy as np
 
-from thinwallx.exceptions import GeometryError, SingularSectionError
+from sectalix.exceptions import GeometryError, SingularSectionError
 
 if TYPE_CHECKING:
-    from thinwallx.section import Section
+    from sectalix.section import Section
 
 _OVERFLOW = "Recovered stress overflows IEEE-754 float64 range."
 _UNDERFLOW = "Calculated value is non-zero but underflows IEEE-754 float64 subnormal range (< 5e-324)."
@@ -323,9 +323,9 @@ def calculate_stresses(section: Section, loads: AppliedLoads) -> StressRecoveryR
     rejected so the profile dictionary cannot silently discard a physical wall.
     Zero load with a yield stress has infinite load factor (no finite yielding load).
     """
-    from thinwallx.section import Section
-    from thinwallx.mixed_topology import extract_mixed_topology
-    from thinwallx.mixed_torsion import _compute_open_torsion_terms, _solve_bredt_batho_blocks
+    from sectalix.section import Section
+    from sectalix.mixed_topology import extract_mixed_topology
+    from sectalix.mixed_torsion import _compute_open_torsion_terms, _solve_bredt_batho_blocks
     if not isinstance(section, Section) or not isinstance(loads, AppliedLoads):
         raise TypeError("calculate_stresses expects a Section and AppliedLoads.")
     section.validate()

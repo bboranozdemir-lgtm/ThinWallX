@@ -1,1 +1,1 @@
-"""ThinWallX test suite."""
+"""Sectalix test suite."""

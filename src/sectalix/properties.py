@@ -1,4 +1,4 @@
-"""Section properties calculation for ThinWallX v0.1.
+"""Section properties calculation for Sectalix v0.1.
 
 Implements exact closed-form straight-segment formulas for area, centroid,
 second moments of area, and principal properties strictly according to ACTIVE_PHASE.md.
@@ -13,8 +13,8 @@ from typing import Iterable, Sequence
 
 import numpy as np
 
-from thinwallx.primitives import Segment
-from thinwallx.exceptions import GeometryError, TopologyError
+from sectalix.primitives import Segment
+from sectalix.exceptions import GeometryError, TopologyError
 
 
 @dataclass(frozen=True)

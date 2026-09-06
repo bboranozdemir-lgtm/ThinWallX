@@ -1,4 +1,4 @@
-"""Independent analytical benchmarks for ThinWallX v0.6 mixed open-closed mechanics.
+"""Independent analytical benchmarks for Sectalix v0.6 mixed open-closed mechanics.
 
 Covers:
 - B1: Closed-base hat / Omega (closed box + open flanges) and asymmetric variants.
@@ -20,9 +20,9 @@ from typing import Sequence
 import pytest
 import numpy as np
 
-from thinwallx.mixed_section import MixedSection
-from thinwallx.primitives import Node, Segment
-from thinwallx.shear_load import ShearLoad
+from sectalix.mixed_section import MixedSection
+from sectalix.primitives import Node, Segment
+from sectalix.shear_load import ShearLoad
 
 
 # ==============================================================================

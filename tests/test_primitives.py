@@ -3,8 +3,8 @@
 import math
 import pytest
 
-from thinwallx.exceptions import GeometryError
-from thinwallx.primitives import Node, Segment
+from sectalix.exceptions import GeometryError
+from sectalix.primitives import Node, Segment
 
 
 class TestNode:

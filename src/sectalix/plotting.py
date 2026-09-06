@@ -14,12 +14,12 @@ from typing import Any, Callable
 
 import numpy as np
 
-from thinwallx import Section, ClosedSection, MixedSection
-from thinwallx.closed_shear_flow import ClosedShearFlowResult, ClosedSegmentShearFlow
-from thinwallx.mixed_shear_flow import MixedShearFlowResult, MixedSegmentShearFlow
-from thinwallx.shear_flow import ShearFlowResult, SegmentShearFlow
-from thinwallx.stress import StressRecoveryResult
-from thinwallx.serialization import UnitSystem, _atomic_write, to_dict
+from sectalix import Section, ClosedSection, MixedSection
+from sectalix.closed_shear_flow import ClosedShearFlowResult, ClosedSegmentShearFlow
+from sectalix.mixed_shear_flow import MixedShearFlowResult, MixedSegmentShearFlow
+from sectalix.shear_flow import ShearFlowResult, SegmentShearFlow
+from sectalix.stress import StressRecoveryResult
+from sectalix.serialization import UnitSystem, _atomic_write, to_dict
 
 Flow = ShearFlowResult | ClosedShearFlowResult | MixedShearFlowResult
 SegmentFlow = SegmentShearFlow | ClosedSegmentShearFlow | MixedSegmentShearFlow
@@ -51,7 +51,7 @@ class PlotStyle:
     line_width: float = 1.2
     grid: bool = False
     max_samples: int = 200000
-    svg_hashsalt: str = "thinwallx-v0.8"
+    svg_hashsalt: str = "sectalix-v0.8"
     title: str | None = None
 
     def __post_init__(self) -> None:
@@ -191,7 +191,7 @@ def _backend() -> tuple[Any, Any, Any]:
         from matplotlib.figure import Figure
         from matplotlib.backends.backend_agg import FigureCanvasAgg
     except ImportError as exc:
-        raise ImportError("Technical plots require the optional matplotlib dependency (thinwallx[plots]).") from exc
+        raise ImportError("Technical plots require the optional matplotlib dependency (sectalix[plots]).") from exc
     return matplotlib, Figure, FigureCanvasAgg
 
 
@@ -248,7 +248,7 @@ def _render(section: Section, path: str | Path, style: PlotStyle, units: UnitSys
             # Reserve space for a one-panel colorbar's ticks AND dimensional label.
             right = .84 if panels == 1 and scale is not None else .94
             fig.subplots_adjust(left=.13, bottom=.18, right=right, top=.87, wspace=.55)
-            metadata = {"Software": "ThinWallX v0.8"} if fmt == "png" else {"Date": None, "Creator": "ThinWallX v0.8"}
+            metadata = {"Software": "Sectalix v0.8"} if fmt == "png" else {"Date": None, "Creator": "Sectalix v0.8"}
             target = _atomic_write(path, lambda p: fig.savefig(p, format=fmt, dpi=style.dpi, metadata=metadata), overwrite)
             for s in section.segments:
                 if frame.length(s.length)*min(style.figsize)*style.dpi < 1:

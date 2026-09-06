@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "ThinWallX 0.8",
+  "title": "Sectalix application — v0.8 interchange",
   "description": "Structural schema. Canonical binary64, positive values, reference integrity, topology and peak consistency require the Python semantic validator.",
   "type": "object",
   "properties": {

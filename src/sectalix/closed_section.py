@@ -7,18 +7,18 @@ from typing import Sequence
 
 import numpy as np
 
-from thinwallx.cells import Cell, CellTopology, extract_cell_topology
-from thinwallx.closed_shear_flow import ClosedShearFlowResult, calculate_closed_shear_flow
-from thinwallx.closed_torsion import (
+from sectalix.cells import Cell, CellTopology, extract_cell_topology
+from sectalix.closed_shear_flow import ClosedShearFlowResult, calculate_closed_shear_flow
+from sectalix.closed_torsion import (
     ClosedTorsionWarpingResult,
     compute_closed_shear_center,
     compute_closed_torsion_warping,
 )
-from thinwallx.primitives import Node, Segment
-from thinwallx.properties import SectionProperties, compute_properties
-from thinwallx.section import Section
-from thinwallx.shear_center import ShearCenterResult
-from thinwallx.shear_load import ShearLoad
+from sectalix.primitives import Node, Segment
+from sectalix.properties import SectionProperties, compute_properties
+from sectalix.section import Section
+from sectalix.shear_center import ShearCenterResult
+from sectalix.shear_load import ShearLoad
 
 
 class ClosedSection(Section):
@@ -62,7 +62,7 @@ class ClosedSection(Section):
         else:
             self._cell_topology = None  # type: ignore[assignment]
             all_nodes = [node for seg in seg_tuple for node in (seg.p1, seg.p2)]
-            from thinwallx.validation import cluster_nodes
+            from sectalix.validation import cluster_nodes
             canonical_nodes, _ = cluster_nodes(all_nodes, tol=node_tolerance)
             self._canonical_nodes = tuple(canonical_nodes)
 

@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from thinwallx import Section, ClosedSection, MixedSection, GeometryError, TopologyError
-from thinwallx.dxf import DxfImportOptions, ThicknessMap, loads_dxf, read_dxf
+from sectalix import Section, ClosedSection, MixedSection, GeometryError, TopologyError
+from sectalix.dxf import DxfImportOptions, ThicknessMap, loads_dxf, read_dxf
 
 
 def options(**kw):

@@ -1,4 +1,4 @@
-"""Validation and error handling tests for ThinWallX v0.3 Shear Center Analysis.
+"""Validation and error handling tests for Sectalix v0.3 Shear Center Analysis.
 
 Verifies:
 1. Singular/rank-deficient sections raise SingularSectionError.
@@ -13,15 +13,15 @@ from __future__ import annotations
 import math
 import pytest
 
-from thinwallx.exceptions import GeometryError, SingularSectionError
-from thinwallx.primitives import Node, Segment
-from thinwallx.section import Section
-from thinwallx.shear_center import (
+from sectalix.exceptions import GeometryError, SingularSectionError
+from sectalix.primitives import Node, Segment
+from sectalix.section import Section
+from sectalix.shear_center import (
     ShearCenterResult,
     compute_shear_center,
     compute_shear_flow_torque,
 )
-from thinwallx.shear_flow import calculate_shear_flow
+from sectalix.shear_flow import calculate_shear_flow
 
 
 def make_single_strip() -> Section:

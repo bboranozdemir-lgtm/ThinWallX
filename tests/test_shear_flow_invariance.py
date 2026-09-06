@@ -1,4 +1,4 @@
-"""Tests for physical and mathematical invariance of shear-flow fields (ThinWallX v0.2).
+"""Tests for physical and mathematical invariance of shear-flow fields (Sectalix v0.2).
 
 Verifies acceptance criteria 7, 8, 9, 10, 11, 12, 13:
 - Criterion 7: Free-edge zero flow (q = 0 at every geometric free edge).
@@ -15,9 +15,9 @@ import math
 import numpy as np
 import pytest
 
-from thinwallx.primitives import Node, Segment
-from thinwallx.section import Section
-from thinwallx.shear_load import ShearLoad
+from sectalix.primitives import Node, Segment
+from sectalix.section import Section
+from sectalix.shear_load import ShearLoad
 
 
 def make_channel_section() -> Section:
@@ -57,7 +57,7 @@ class TestFreeEdgeCondition:
         # Count occurrences of each canonical node across all segment endpoints
         # A node with degree 1 is a geometric free edge
         all_nodes = [node for s in sec.segments for node in (s.p1, s.p2)]
-        from thinwallx.validation import cluster_nodes
+        from sectalix.validation import cluster_nodes
         _, mapping = cluster_nodes(all_nodes, tol=sec._node_tolerance)
 
         deg: dict[int, int] = {}

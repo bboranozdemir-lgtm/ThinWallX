@@ -1,4 +1,4 @@
-"""MixedSection class representing mixed open-closed thin-walled cross sections (ThinWallX v0.6)."""
+"""MixedSection class representing mixed open-closed thin-walled cross sections (Sectalix v0.6)."""
 
 from __future__ import annotations
 
@@ -7,19 +7,19 @@ from typing import Sequence
 
 import numpy as np
 
-from thinwallx.cells import Cell
-from thinwallx.mixed_shear_flow import MixedShearFlowResult, calculate_mixed_shear_flow
-from thinwallx.mixed_topology import MixedTopology, extract_mixed_topology
-from thinwallx.mixed_torsion import (
+from sectalix.cells import Cell
+from sectalix.mixed_shear_flow import MixedShearFlowResult, calculate_mixed_shear_flow
+from sectalix.mixed_topology import MixedTopology, extract_mixed_topology
+from sectalix.mixed_torsion import (
     MixedTorsionWarpingResult,
     compute_mixed_shear_center,
     compute_mixed_torsion_warping,
 )
-from thinwallx.primitives import Node, Segment
-from thinwallx.properties import SectionProperties, compute_properties
-from thinwallx.section import Section
-from thinwallx.shear_center import ShearCenterResult
-from thinwallx.shear_load import ShearLoad
+from sectalix.primitives import Node, Segment
+from sectalix.properties import SectionProperties, compute_properties
+from sectalix.section import Section
+from sectalix.shear_center import ShearCenterResult
+from sectalix.shear_load import ShearLoad
 
 
 class MixedSection(Section):
@@ -63,7 +63,7 @@ class MixedSection(Section):
         else:
             self._mixed_topology = None  # type: ignore[assignment]
             all_nodes = [node for seg in seg_tuple for node in (seg.p1, seg.p2)]
-            from thinwallx.validation import cluster_nodes
+            from sectalix.validation import cluster_nodes
             canonical_nodes, _ = cluster_nodes(all_nodes, tol=node_tolerance)
             self._canonical_nodes = tuple(canonical_nodes)
 
@@ -315,7 +315,7 @@ class MixedSection(Section):
             tuple of (J_total, J_BB, J_open)
         """
         if self._torsion_constants_result is None:
-            from thinwallx.mixed_torsion import compute_mixed_torsion_constant
+            from sectalix.mixed_torsion import compute_mixed_torsion_constant
             self._torsion_constants_result = compute_mixed_torsion_constant(
                 self, safety_factor=safety_factor
             )

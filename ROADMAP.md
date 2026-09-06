@@ -1,9 +1,11 @@
-# ThinWallX — Roadmap
+# Sectalix — Roadmap
 
-## Release seal — v1.0.0
+## Release seal — v1.0.1 (historical core v1.0.0 preserved)
 
 v0.1–v1.0 teslimat kapsamı **COMPLETED & FROZEN** olarak mühürlenmiştir.
-559 testlik v1.0 çekirdeği ve testleri değiştirilemez. Yol A yalnızca dağıtım ve CI/CD hazırlığıdır.
+559 testlik v1.0 çekirdeği ve testleri değiştirilemez; v1.0.1 yeniden adlandırma
+doğrulaması bu çekirdeğe ek olarak bir uyumluluk testi içerir. Yol A yalnızca
+dağıtım ve CI/CD hazırlığıdır.
 
 | Phase | Delivered scope | Status |
 |---|---|---|
