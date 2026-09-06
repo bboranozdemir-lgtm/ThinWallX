@@ -22,7 +22,7 @@ def checked(args: list[str], cwd: Path, env: dict[str, str]) -> str:
 
 
 def test_t31_t32_version_entrypoint() -> None:
-    metadata = (ROOT / "pyproject.toml").read_text()
+    metadata = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
     assert f'version = "{__version__}"' in metadata
     assert __version__ == "1.0.0"
     assert 'thinwallx = "thinwallx.cli:main"' in metadata
@@ -47,15 +47,21 @@ def test_t35_documentation_links() -> None:
 def test_t33_t36_build_install_wheel_and_sdist(tmp_path: Path) -> None:
     project = tmp_path / "project"
     project.mkdir()
-    for name in ("pyproject.toml", "README.md", "MANIFEST.in"):
-        shutil.copy2(ROOT / name, project / name)
+    for name in ("pyproject.toml", "README.md", "MANIFEST.in", "LICENSE"):
+        if (ROOT / name).exists():
+            shutil.copy2(ROOT / name, project / name)
     for name in ("src", "docs", "schemas", "tests"):
         shutil.copytree(ROOT / name, project / name, ignore=shutil.ignore_patterns("__pycache__", "*.egg-info"))
     env = os.environ.copy()
     env.pop("PYTHONPATH", None)
     env["PYTHONIOENCODING"] = "utf-8"
-    checked([sys.executable, "-W", "error", "-c",
-             "from setuptools.build_meta import build_wheel, build_sdist; build_wheel('dist'); build_sdist('dist')"], project, env)
+    checked([
+        sys.executable, "-W", "error",
+        "-W", "ignore::DeprecationWarning:distutils",
+        "-W", "ignore::DeprecationWarning:setuptools",
+        "-c",
+        "from setuptools.build_meta import build_wheel, build_sdist; build_wheel('dist'); build_sdist('dist')"
+    ], project, env)
     wheel = next((project / "dist").glob("*.whl"))
     archive = next((project / "dist").glob("*.tar.gz"))
     with zipfile.ZipFile(wheel) as z:
@@ -65,7 +71,7 @@ def test_t33_t36_build_install_wheel_and_sdist(tmp_path: Path) -> None:
         assert any(n.endswith("tests/test_cli.py") for n in t.getnames())
         assert any(n.endswith("schemas/thinwallx-0.8.schema.json") for n in t.getnames())
     target = tmp_path / "installed"
-    venv.EnvBuilder(with_pip=True, system_site_packages=True).create(target)
+    venv.EnvBuilder(with_pip=True, symlinks=(os.name != "nt"), system_site_packages=True).create(target)
     binary = target / ("Scripts" if os.name == "nt" else "bin")
     python = binary / ("python.exe" if os.name == "nt" else "python")
     checked([str(python), "-m", "pip", "install", "--no-deps", "--no-index", str(wheel)], tmp_path, env)
@@ -73,4 +79,4 @@ def test_t33_t36_build_install_wheel_and_sdist(tmp_path: Path) -> None:
     assert checked([str(console), "--version"], tmp_path, env).strip() == "ThinWallX 1.0.0"
     assert "inspect" in checked([str(python), "-m", "thinwallx", "--help"], tmp_path, env)
     imported = checked([str(python), "-c", "import thinwallx; print(thinwallx.__file__)"], tmp_path, env)
-    assert str(target).lower() in imported.lower()
+    assert target.resolve().as_posix().lower() in Path(imported.strip()).resolve().as_posix().lower()

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=70.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -16,6 +16,13 @@ dependencies = [
 [project.scripts]
 thinwallx = "thinwallx.cli:main"
 
+[project.urls]
+Homepage = "https://github.com/bboranozdemir-lgtm/ThinWallX"
+Documentation = "https://github.com/bboranozdemir-lgtm/ThinWallX#readme"
+Repository = "https://github.com/bboranozdemir-lgtm/ThinWallX"
+Issues = "https://github.com/bboranozdemir-lgtm/ThinWallX/issues"
+Changelog = "https://github.com/bboranozdemir-lgtm/ThinWallX/releases"
+
 [project.optional-dependencies]
 plots = [
     "matplotlib>=3.6",
@@ -27,6 +34,12 @@ test = [
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["src"]
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning:distutils.*",
+    "ignore::DeprecationWarning:setuptools.*",
+    "ignore::DeprecationWarning:pkg_resources.*",
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]

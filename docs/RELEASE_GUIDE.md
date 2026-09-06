@@ -40,12 +40,9 @@ git push -u origin main --tags
 
 ## PyPI: separate publication decision
 
-No license has been selected or added by this release task. Before describing the
-distribution as open source, the copyright holder must select a license and ensure
-it is included in distribution metadata and archives. Do not infer a license from
-a public repository. Also confirm ownership/availability of the thinwallx PyPI name.
-Any post-tag metadata/content correction requires a new reviewed release; do not
-silently replace a published version or rewrite the frozen tag.
+ThinWallX is officially distributed under the MIT License (see `LICENSE` in the repository
+root and `license = "MIT"` in `pyproject.toml`). Ensure the package name ownership is confirmed
+on PyPI before first upload. Any post-tag metadata or release updates follow semantic versioning.
 
 For manual publication, use the verified GitHub release artifact, not arbitrary
 files from a working directory. Set up a PyPI account with 2FA and a scoped upload

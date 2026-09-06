@@ -20,11 +20,11 @@ Do not repeatedly re-read unrelated documentation.
 - Use clean, modern Python (>= 3.10) with explicit type hinting.
 - Use lightweight `dataclasses` for geometric primitives such as `Node` and `Segment`.
 - Do not invent engineering formulas.
-- Implement the exact closed-form straight-segment formulas specified in `ACTIVE_PHASE.md`.
-- Do not replace exact segment formulas with numerical sampling or quadrature in v0.1.
+- Implement the exact closed-form straight-segment formulas specified in the specifications.
+- Do not replace exact segment formulas with numerical sampling or quadrature.
 - Record the source, derivation, or benchmark basis for every nontrivial formula.
-- Strictly adhere to the sign conventions and inertia-matrix structure in `ACTIVE_PHASE.md`.
-- Use the quadrant-safe `atan2` principal-angle convention specified in `ACTIVE_PHASE.md`.
+- Strictly adhere to the sign conventions and inertia-matrix structure.
+- Use the quadrant-safe `atan2` principal-angle convention.
 - Keep dependencies minimal: use `numpy` for linear algebra/eigenvalues and `pytest` for testing.
 - Add tests with every implemented calculation.
 - Prefer analytical benchmarks when available.
@@ -33,15 +33,13 @@ Do not repeatedly re-read unrelated documentation.
 - Validation failures must be explicit and testable.
 
 ## Architecture Guidance
-Keep the v0.1 architecture minimal.
-A reasonable decomposition is:
-- geometric primitives
-- section/topology container
-- validation
-- section-property calculations
-- tests
-
-Do not create abstractions for future shear flow, torsion, warping, closed-cell, FEM, DXF, GUI, or optimization features during v0.1.
+The v1.0 production architecture is complete and frozen:
+- geometric primitives and section containers (`primitives.py`, `section.py`, `closed_section.py`, `mixed_section.py`)
+- cell detection and graph topology (`cells.py`, `mixed_topology.py`, `validation.py`)
+- exact analytical mechanics (`properties.py`, `shear_flow.py`, `shear_center.py`, `torsion.py`, `closed_shear_flow.py`, `closed_torsion.py`, `mixed_shear_flow.py`, `mixed_torsion.py`, `stress.py`)
+- I/O and visualization (`serialization.py`, `dxf.py`, `plotting.py`)
+- user interfaces and reporting (`cli.py`, `reporting.py`)
+- regression tests (`tests/`, 559 tests)
 
 ## Token / Context Efficiency
 - Inspect only files relevant to the active task.

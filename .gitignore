@@ -32,4 +32,6 @@ Thumbs.db
 *.key
 .pypirc
 
-# Release archives in dist/ and all documentation are intentionally tracked.
+# Distribution and release build artifacts (releases are distributed via GitHub Releases/PyPI)
+dist/
+release-dist/
