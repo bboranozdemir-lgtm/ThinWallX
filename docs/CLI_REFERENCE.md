@@ -50,7 +50,7 @@ Only PNG and SVG file output is supported; binary stdout is not. Thickness bands
 
 The importer performs supported length conversion, validation and topology classification. Defaults are mm/mm/auto. --output - sends JSON to stdout. Input must be a DXF file. No CAD dependency, GUI, curve tessellation or unsupported entity approximation is introduced.
 
-For a minimal input, create an ASCII DXF ENTITIES section containing a LINE on layer THICK_0.01, with group codes 10/20 for its start and 11/21 for its end. Valid mechanical inspection also requires nonsingular geometry: use the complete [open L example](https://github.com/bboranozdemir-lgtm/Sectalix/blob/main/examples/sample_sections/open_l.dxf), not a single line. Examples are available in the repository, not installed by the wheel. From a source checkout, convert it to obtain a complete canonical JSON example:
+For a minimal input, create an ASCII DXF ENTITIES section containing a LINE on layer THICK_0.01, with group codes 10/20 for its start and 11/21 for its end. Valid mechanical inspection also requires nonsingular geometry: use the complete [open L example](https://github.com/berkeboranozdemir/Sectalix/blob/main/examples/sample_sections/open_l.dxf), not a single line. Examples are available in the repository, not installed by the wheel. From a source checkout, convert it to obtain a complete canonical JSON example:
 
 `sectalix convert-dxf examples/sample_sections/open_l.dxf --output section.json`
 

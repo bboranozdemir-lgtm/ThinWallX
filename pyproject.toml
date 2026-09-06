@@ -32,11 +32,11 @@ dependencies = [
 sectalix = "sectalix.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/bboranozdemir-lgtm/Sectalix"
-Documentation = "https://github.com/bboranozdemir-lgtm/Sectalix#readme"
-Repository = "https://github.com/bboranozdemir-lgtm/Sectalix"
-Issues = "https://github.com/bboranozdemir-lgtm/Sectalix/issues"
-Changelog = "https://github.com/bboranozdemir-lgtm/Sectalix/releases"
+Homepage = "https://github.com/berkeboranozdemir/Sectalix"
+Documentation = "https://github.com/berkeboranozdemir/Sectalix#readme"
+Repository = "https://github.com/berkeboranozdemir/Sectalix"
+Issues = "https://github.com/berkeboranozdemir/Sectalix/issues"
+Changelog = "https://github.com/berkeboranozdemir/Sectalix/releases"
 
 [project.optional-dependencies]
 plots = [

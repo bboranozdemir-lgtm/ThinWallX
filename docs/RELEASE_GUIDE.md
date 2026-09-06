@@ -79,7 +79,7 @@ version filenames cannot simply be replaced; review before uploading.
 
 The publishing job uses a protected `pypi` GitHub Environment and
 `id-token: write`. Configure required reviewers before creating the tag. On PyPI,
-register a Trusted Publisher for owner `bboranozdemir-lgtm`, repository `Sectalix`,
+register a Trusted Publisher for owner `berkeboranozdemir`, repository `Sectalix`,
 workflow `.github/workflows/publish.yml`, and environment `pypi`.
 
 Official references:

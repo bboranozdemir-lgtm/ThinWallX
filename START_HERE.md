@@ -10,7 +10,7 @@ Sectalix has completed its initial v0.1–v1.0 roadmap. The numerical core (v0.1
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/bboranozdemir-lgtm/Sectalix.git
+   git clone https://github.com/berkeboranozdemir/Sectalix.git
    cd Sectalix
    ```
 
