@@ -93,10 +93,11 @@ Bayt determinizmi aynı Python/numpy/matplotlib/font ortamı için sınanır; fa
 
 ## Çalışan örnekler ve testler
 
-examples/v08_io_and_plots.py, tests/fixtures/dxf altındaki açık L, kapalı kutu ve barbell dosyalarını okuyarak 9 JSON ve 18 PNG/SVG üretir. examples/v08_output altında üretilmiş örnekler bulunur. Gerekirse src dizinini PYTHONPATH'e ekleyin veya editable kurulum kullanın.
+Kaynak depoda examples/sample_sections altında açık L, kapalı kutu ve barbell girişleri, examples/sample_calculation altında seçilmiş hesap raporu ve grafikler bulunur. Python API örneği examples/quickstart_api.py dosyasındadır. Aşağıdaki komutlar kaynak deponun kökünde, editable kurulumdan sonra çalıştırılır; örnekler wheel ile kurulmaz. Eski v08 çıktı üretim betiği ve tekrarlı çıktılar kaldırılmıştır.
 
 ~~~console
-python examples/v08_io_and_plots.py --output examples/v08_output
+python examples/quickstart_api.py
+thinwallx inspect examples/sample_sections/rectangle.dxf
 python -m pytest -W error tests/test_serialization.py tests/test_dxf_import.py tests/test_dxf_benchmarks.py tests/test_plotting.py
 python -m pytest -W error
 ~~~

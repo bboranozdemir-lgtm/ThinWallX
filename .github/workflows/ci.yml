@@ -24,10 +24,10 @@ jobs:
       PYTHONUTF8: "1"
       MPLBACKEND: Agg
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
@@ -35,6 +35,6 @@ jobs:
       - name: Install dependencies
         run: python -m pip install -e ".[test,plots]"
       - name: Install backend used by frozen packaging tests
-        run: python -m pip install "setuptools>=70" wheel
+        run: python -m pip install "setuptools>=77.0.3" wheel
       - name: Frozen regression suite
         run: python -m pytest -W error

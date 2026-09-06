@@ -55,13 +55,18 @@ def test_t33_t36_build_install_wheel_and_sdist(tmp_path: Path) -> None:
     env = os.environ.copy()
     env.pop("PYTHONPATH", None)
     env["PYTHONIOENCODING"] = "utf-8"
-    checked([
-        sys.executable, "-W", "error",
-        "-W", "ignore::DeprecationWarning:distutils",
-        "-W", "ignore::DeprecationWarning:setuptools",
-        "-c",
-        "from setuptools.build_meta import build_wheel, build_sdist; build_wheel('dist'); build_sdist('dist')"
-    ], project, env)
+    # Only the known CPython 3.10/3.11 Windows distutils import warning is exempt.
+    # Other messages, categories, modules and Python versions remain errors.
+    build_code = "import sys, warnings\n"
+    build_code += (
+        "if sys.platform == 'win32' and (3, 10) <= sys.version_info[:2] < (3, 12):\n"
+        "    warnings.filterwarnings('ignore', "
+        "message=r'^The distutils package is deprecated and slated for removal in Python 3\\.12\\. ', "
+        "category=DeprecationWarning, module=r'^distutils$')\n"
+        "from setuptools.build_meta import build_wheel, build_sdist\n"
+        "build_wheel('dist'); build_sdist('dist')\n"
+    )
+    checked([sys.executable, "-W", "error", "-c", build_code], project, env)
     wheel = next((project / "dist").glob("*.whl"))
     archive = next((project / "dist").glob("*.tar.gz"))
     with zipfile.ZipFile(wheel) as z:

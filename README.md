@@ -1,11 +1,10 @@
 # ThinWallX
 
 [![CI](https://github.com/bboranozdemir-lgtm/ThinWallX/actions/workflows/ci.yml/badge.svg)](https://github.com/bboranozdemir-lgtm/ThinWallX/actions/workflows/ci.yml)
-[![Tests](https://img.shields.io/badge/tests-559%20passed-brightgreen.svg)](#verification)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**ThinWallX** is a high-precision, production-grade numerical analysis library and command-line tool for arbitrary thin-walled structural cross-sections. It implements exact closed-form centerline integrations for open, closed (multi-cell), and mixed topologies without relying on numerical quadrature or finite element meshing.
+**ThinWallX** is a Python library and command-line tool for thin-walled structural cross-sections. It evaluates closed-form centerline integrals in float64 for open, closed (multi-cell), and mixed topologies, without numerical quadrature or finite element meshing.
 
 ![ThinWallX Von Mises Stress Analysis](examples/sample_calculation/stress_vm.png)
 
@@ -14,9 +13,9 @@
 ## Key Features
 
 - **Exact Analytical Integrals:** Closed-form line integrals for cross-sectional area $A$, centroid $C=(x_c, y_c)$, second moments of area ($I_x, I_y, I_{xy}$), principal properties ($I_1, I_2, \theta_p$), and Saint-Venant torsion constant $J$.
-- **Shear Flow & Shear Center:** Tree-equilibrium transverse shear flow for open sections, Bredt-Batho compatibility circulations for multi-cell closed sections, and exact shear center $S=(x_s, y_s)$ determination.
+- **Shear Flow & Shear Center:** Tree-equilibrium transverse shear flow for open sections, Bredt-Batho compatibility circulations for multi-cell closed sections, and shear center $S=(x_s, y_s)$ determination.
 - **Vlasov Warping Theory:** Continuous sectorial coordinate field $\omega^\ast(s)$ with zero-mean normalization and sectorial warping constant $C_w$.
-- **Stress Recovery & Peak Search:** Analytical stress distributions ($\sigma_{zz}, \tau_{\rm surface}, \sigma_{\rm vm}$) with root-finding for exact peak Von Mises stress and elastic first-yield multiplier ($\lambda$).
+- **Stress Recovery & Peak Search:** Analytical stress profiles ($\sigma_{zz}, \tau_{\rm surface}, \sigma_{\rm vm}$) with polynomial root-finding for peak von Mises stress and elastic first-yield multiplier ($\lambda$), rather than sampled peak estimation.
 - **Zero Heavy Dependencies:** Core computation runs strictly on Python standard library and `numpy`. Plotting optionally utilizes `matplotlib`.
 - **Engineering CLI & Calculation Sheets:** Built-in command line interface (`thinwallx`) with standard UNIX exit codes, streaming piping (`stdin`/`stdout`), and automated GitHub-Flavored Markdown Calculation Sheet generator.
 - **CAD & Lossless Interchange:** Exact IEEE-754 float64 hexadecimal JSON serialization and standalone ASCII DXF importer.
@@ -47,17 +46,23 @@ ThinWallX provides a unified CLI for inspecting sections, converting CAD files, 
 
 ```bash
 # Inspect cross-section characteristics (Area, Centroid, Inertia, J, Cw)
-thinwallx inspect examples/sample_sections/rectangle.dxf --thickness 2.0
+thinwallx inspect examples/sample_sections/rectangle.dxf
 
 # Run full stress recovery analysis under external loads
-thinwallx analyze examples/sample_sections/rectangle.dxf --thickness 2.0 \
+thinwallx analyze examples/sample_sections/rectangle.dxf \
   --N 10000 --Vy 5000 --Mx 250000 --sigma-yield 355 \
   --report calculation_report.md \
   --plots-dir ./output_plots
 
 # Directly render section geometry to PNG/SVG
-thinwallx plot examples/sample_sections/rectangle.dxf --thickness 2.0 --output geometry.png
+thinwallx plot examples/sample_sections/rectangle.dxf --output geometry.png
 ```
+
+The rectangle example is a 4 x 2 mm centerline box with thickness 0.01 mm,
+encoded by its `THICK_0.01` DXF layer. The CLI `--thickness` option is only a
+fallback for entities without mapped thickness; it does not override that layer.
+These small sample dimensions demonstrate the interface, not a practical design.
+Plot-producing commands require the optional `plots` installation above.
 
 ### 2. Python API
 
@@ -124,4 +129,3 @@ print(f"Elastic Load Factor: lambda = {results.load_factor:.3f}")
 ## License
 
 ThinWallX is released under the [MIT License](LICENSE).
-

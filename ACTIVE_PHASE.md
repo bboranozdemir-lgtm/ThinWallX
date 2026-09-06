@@ -12,3 +12,11 @@ Normatif şartname: [docs/archive/specifications/ACTIVE_PHASE_v1.0.md](docs/arch
 - Yol A yalnızca release belgeleri, Git ve CI/CD altyapısını kapsar; mekanik/test değişiklikleri yasaktır.
 - Doğrulama: python -m pytest -W error; beklenen 559 passed, sıfır hata ve uyarı.
 - Dondurma harici yayın anlamına gelmez. GitHub/PyPI gönderimleri kullanıcıya bırakılır; yeni faz başlatılmaz.
+
+## Yetkilendirilmiş bakım istisnası
+
+Kullanıcı mevcut denetim bulgularını gidermek üzere testlerde dar kapsamlı bakım
+değişikliklerini ve GitHub main dalına gönderimi onaylamıştır. Bu istisna yalnızca
+ölçek-duyarlı tork toleransı, paketleme uyarı filtresi ve ilgili doğrulama/belge/CI
+bakımını kapsar. src/ değiştirilemez; yeni mekanik özellik eklenemez. v1.0.0 etiketi
+taşınmaz, PyPI yayını yapılmaz ve yeni faz başlatılmaz.

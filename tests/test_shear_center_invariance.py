@@ -183,10 +183,21 @@ class TestLoadScalingAndResidualTorque:
         self, vx: float, vy: float
     ) -> None:
         """Criterion 13: For arbitrary (Vx, Vy), T_z - (ex * Vy - ey * Vx) == 0."""
-        sec = make_l_section()
-        res = sec.compute_shear_center()
-
-        residual = res.residual_torque(vx=vx, vy=vy)
-        # For ~10^4 N loads on ~10^2 mm section, applied torque ~ 10^6 N*mm.
-        # Float64 roundoff floor is 10^6 * 2.22e-16 ~ 2.2e-10 N*mm; 1e-9 represents < 10^-15 relative precision.
-        assert abs(residual) < 1e-9
+        # Exercise both length-unit changes and load magnitudes. The tolerance
+        # has torque units and no absolute floor. 32 epsilon allows for the
+        # short segment integration/solve chain and final cancellation, while
+        # requiring relative accuracy better than 8e-15 in every case.
+        for length_scale in (1e-3, 1.0, 1e3):
+            sec = Section.from_tuples([
+                ((0.0, 0.0), (60.0 * length_scale, 0.0), 2.5 * length_scale),
+                ((0.0, 0.0), (0.0, 40.0 * length_scale), 3.5 * length_scale),
+            ])
+            res = sec.compute_shear_center()
+            for load_scale in (1e-6, 1.0, 1e6):
+                fx, fy = vx * load_scale, vy * load_scale
+                residual = res.residual_torque(vx=fx, vy=fy)
+                torque_scale = abs(res.ex * fy) + abs(res.ey * fx)
+                assert math.isfinite(residual) and torque_scale > 0.0
+                assert abs(residual) <= 32 * np.finfo(float).eps * torque_scale, (
+                    length_scale, load_scale, residual, torque_scale
+                )

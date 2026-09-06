@@ -22,6 +22,21 @@ The packaging tests invoke setuptools directly, so CI installs that backend and
 wheel explicitly in addition to the requested editable test/plot extras. This is
 build/test tooling, not a new application dependency.
 
+The minimum backend is setuptools 77.0.3, which supports the SPDX license-string
+format. Checkout and setup-python use their Node 24-based v6 actions; reverting
+to checkout v4/setup-python v5 is not a migration away from Node 20.
+
+Project-wide deprecation suppression is disabled. The packaging subprocess exempts
+only the known distutils import deprecation message on Windows Python 3.10/3.11.
+All other messages remain errors. Passing means no unsuppressed warnings; it does
+not imply that an exempt dependency warning was never emitted.
+
+The residual-torque regression uses 32 machine epsilons times the sum of absolute
+torque terms, without an absolute floor, and exercises three length and three load
+scales. These narrow test maintenance changes were explicitly authorized without
+changing the numerical core. Platform rounding differences do not by themselves
+prove that FMA caused the original discrepancy.
+
 ## Connect a new GitHub repository
 
 1. Create an empty repository in your GitHub account. Do not initialize it with a

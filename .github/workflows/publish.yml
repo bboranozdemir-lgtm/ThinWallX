@@ -15,10 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
       - name: Install release tools
@@ -35,7 +35,7 @@ jobs:
       - name: Validate package metadata
         run: python -m twine check --strict release-dist/*
       - name: Preserve verified release artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: thinwallx-${{ github.ref_name }}-distributions
           path: release-dist/*

@@ -25,7 +25,8 @@ ThinWallX has completed its initial v0.1–v1.0 roadmap. The numerical core (v0.
 
 3. Install in editable development mode with test and plotting extras:
    ```bash
-   pip install -e ".[test,plots]"
+   python -m pip install -e ".[test,plots]"
+   python -m pip install "setuptools>=77.0.3" wheel
    ```
 
 4. Run the full test suite with strict error checking:
