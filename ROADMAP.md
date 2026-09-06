@@ -69,4 +69,4 @@ Original scope summaries below are retained for traceability, not future-work au
 
 ## Rule
 The roadmap is descriptive only.
-Codex must never advance to another version unless `ACTIVE_PHASE.md` explicitly names that version.
+Version changes require an explicit project decision and release review.
