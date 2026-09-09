@@ -1,0 +1,120 @@
+name: One-time public source cleanup
+
+on:
+  push:
+    branches: [cleanup/public-academic]
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: cleanup/public-academic
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Remove obsolete internal wording from source documentation
+        shell: python
+        run: |
+          from pathlib import Path
+
+          replacements = {
+              "src/sectalix/stress.py": [
+                  (
+                      '"""v0.7 stress recovery, following ACTIVE_PHASE.md §§2–3.\n\n',
+                      '"""Linear-elastic stress recovery for supported thin-wall section models.\n\n',
+                  ),
+              ],
+              "src/sectalix/serialization.py": [
+                  (
+                      '"""Strict, lossless v0.8 document codec. See ACTIVE_PHASE_v0.8.md §2.\n\n',
+                      '"""Strict v0.8 document codec with lossless float64 representation.\n\n',
+                  ),
+              ],
+              "src/sectalix/plotting.py": [
+                  (
+                      '"""Headless deterministic technical plots; mechanics remain in frozen evaluators.\n\n',
+                      '"""Headless technical plotting for Sectalix analysis results.\n\n',
+                  ),
+              ],
+              "src/sectalix/torsion.py": [
+                  (
+                      '"""Exact open-section Saint-Venant torsion and warping analysis (Sectalix v0.4).',
+                      '"""Open-section thin-wall Saint-Venant torsion and warping analysis.',
+                  ),
+                  ('Governing Equations & Conventions (ACTIVE_PHASE.md):', 'Governing equations and conventions:'),
+                  ('Exact propagation from arbitrary root node:', 'Propagation from a selected root node:'),
+                  ('"""Exact warping properties along a single straight centerline segment.', '"""Warping quantities along a single straight centerline segment.'),
+                  ('"""Exact integral of normalized sectorial coordinate over the section:', '"""Closed-form integral of normalized sectorial coordinate over the section:'),
+                  ('Governing Mathematical Formulation (ACTIVE_PHASE.md):', 'Governing mathematical formulation:'),
+                  ('Obtain accepted v0.3 shear-center location', 'Obtain the shear-center location'),
+                  ('8. Exact warping constant:', '8. Closed-form straight-segment warping integral:'),
+                  ('# 2. Accepted v0.3 shear center pole', '# 2. Shear-center pole'),
+              ],
+              "src/sectalix/shear_flow.py": [
+                  ('"""Exact thin-walled shear-flow analysis for open sections (Sectalix v0.2).', '"""Thin-wall shear-flow analysis for open sections.'),
+              ],
+              "src/sectalix/closed_shear_flow.py": [
+                  ('"""Closed-section transverse shear-flow analysis (Sectalix v0.5).', '"""Closed-section transverse shear-flow analysis.'),
+                  ('Implements the exact thin-walled closed-section formulation:', 'Implements the documented thin-wall closed-section formulation:'),
+                  ('via accepted v0.2 open-tree mechanics.', 'via the open-tree shear-flow solver.'),
+              ],
+              "src/sectalix/closed_torsion.py": [
+                  ('"""Closed-section Bredt-Batho Saint-Venant torsion and warping mechanics (Sectalix v0.5).', '"""Closed-section Bredt-Batho torsion and warping mechanics.'),
+              ],
+              "src/sectalix/mixed_topology.py": [
+                  ('"""Planar graph decomposition and topology extraction for mixed open-closed sections (Sectalix v0.6).', '"""Planar graph decomposition and topology extraction for mixed open-closed sections.'),
+              ],
+              "src/sectalix/mixed_shear_flow.py": [
+                  ('"""Mixed open-closed transverse shear-flow analysis (Sectalix v0.6).', '"""Mixed open-closed transverse shear-flow analysis.'),
+                  ('Implements the exact thin-walled mixed open-closed formulation:', 'Implements the documented thin-wall mixed open-closed formulation:'),
+                  ('via accepted open-tree mechanics', 'via the open-tree shear-flow solver'),
+              ],
+              "src/sectalix/mixed_torsion.py": [
+                  ('"""Mixed open-closed Saint-Venant torsion and warping mechanics (Sectalix v0.6).', '"""Mixed open-closed Saint-Venant torsion and warping mechanics.'),
+              ],
+              "src/sectalix/mixed_section.py": [
+                  ('"""MixedSection class representing mixed open-closed thin-walled cross sections (Sectalix v0.6)."""', '"""MixedSection for mixed open-closed thin-walled cross-sections."""'),
+              ],
+              "src/sectalix/validation.py": [
+                  ('"""Input and topology validation for Sectalix v0.1."""', '"""Input geometry and topology validation for Sectalix sections."""'),
+              ],
+              "src/sectalix/dxf.py": [
+                  ('"""Restricted ASCII DXF centerlines (AC1009/AC1015), v0.8 §3.', '"""Restricted ASCII DXF centerline import for AC1009/AC1015 files.'),
+              ],
+          }
+
+          for filename, pairs in replacements.items():
+              path = Path(filename)
+              text = path.read_text(encoding="utf-8")
+              original = text
+              for old, new in pairs:
+                  if old not in text:
+                      raise SystemExit(f"Expected cleanup marker not found in {filename}: {old!r}")
+                  text = text.replace(old, new)
+              if text != original:
+                  path.write_text(text, encoding="utf-8", newline="\n")
+
+          forbidden = ("ACTIVE_PHASE", "accepted v0.3", "accepted v0.2", "frozen evaluators", "frozen APIs")
+          offenders = []
+          for path in Path("src/sectalix").glob("*.py"):
+              text = path.read_text(encoding="utf-8")
+              for marker in forbidden:
+                  if marker in text:
+                      offenders.append(f"{path}: {marker}")
+          if offenders:
+              raise SystemExit("Remaining obsolete markers:\n" + "\n".join(offenders))
+      - name: Remove one-time cleanup workflow
+        run: git rm .github/workflows/public-cleanup.yml
+      - name: Commit cleanup
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/sectalix
+          git commit -m "Clean remaining source documentation markers"
+          git push origin HEAD:cleanup/public-academic
