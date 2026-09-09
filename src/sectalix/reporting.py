@@ -1,4 +1,4 @@
-"""Calculation-sheet presentation; mechanics are delegated to frozen APIs."""
+"""Calculation-sheet and inspection presentation built on the public analysis API."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -40,7 +40,7 @@ def _rational_float(value: Fraction) -> float:
 
 
 def inspect_section(section: Section) -> SectionInspection:
-    """Obtain the required properties from frozen public APIs, once."""
+    """Obtain the required properties from the public section API once."""
     if type(section) not in (Section, ClosedSection, MixedSection):
         raise TypeError("Expected a Sectalix section")
     section.validate()

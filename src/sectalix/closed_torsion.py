@@ -1,4 +1,4 @@
-"""Closed-section Bredt-Batho Saint-Venant torsion and warping mechanics (Sectalix v0.5).
+"""Closed-section Bredt-Batho torsion and warping mechanics.
 
 Implements:
 1. Direct solve of Bredt-Batho multi-cell torsion equations:

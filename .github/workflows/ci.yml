@@ -34,7 +34,7 @@ jobs:
           cache-dependency-path: pyproject.toml
       - name: Install dependencies
         run: python -m pip install -e ".[test,plots]"
-      - name: Install backend used by frozen packaging tests
+      - name: Install packaging test tools
         run: python -m pip install "setuptools>=77.0.3" wheel
-      - name: Frozen regression suite
+      - name: Run test suite
         run: python -m pytest -W error

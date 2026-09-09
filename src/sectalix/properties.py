@@ -1,7 +1,7 @@
-"""Section properties calculation for Sectalix v0.1.
+"""Section-property calculations for straight thin-wall centerline segments.
 
-Implements exact closed-form straight-segment formulas for area, centroid,
-second moments of area, and principal properties strictly according to ACTIVE_PHASE.md.
+Area, centroid, second moments, and principal properties use the closed-form
+straight-segment relations documented in ``docs/THEORY_AND_CONVENTIONS.md``.
 """
 
 from __future__ import annotations
@@ -83,44 +83,11 @@ def _finite_fsum(values: Iterable[float], quantity: str) -> float:
 def compute_properties(
     segments: Sequence[Segment], degeneracy_tol: float = 1e-12
 ) -> SectionProperties:
-    """Compute exact centerline section properties from a sequence of segments.
+    """Compute centerline section properties from straight wall segments.
 
-    Engineering Formulas & Derivation References:
-    1. Area:
-       A = \\sum_i t_i * L_i
-       (ACTIVE_PHASE.md, Area)
-
-    2. Centroid:
-       \\bar{x} = (1 / A) * \\sum_i t_i * \\int_{L_i} x ds = (1 / A) * \\sum_i t_i * L_i * (x_1 + x_2) / 2
-       \\bar{y} = (1 / A) * \\sum_i t_i * \\int_{L_i} y ds = (1 / A) * \\sum_i t_i * L_i * (y_1 + y_2) / 2
-       (ACTIVE_PHASE.md, Centroid)
-
-    3. Raw Second Moments (about origin):
-       I_{x,0} = \\sum_i t_i * \\int_{L_i} y^2 ds = \\sum_i t_i * (L_i / 3) * (y_1^2 + y_1*y_2 + y_2^2)
-       I_{y,0} = \\sum_i t_i * \\int_{L_i} x^2 ds = \\sum_i t_i * (L_i / 3) * (x_1^2 + x_1*x_2 + x_2^2)
-       I_{xy,0} = \\sum_i t_i * \\int_{L_i} xy ds = \\sum_i t_i * (L_i / 6) * (2*x_1*y_1 + x_1*y_2 + x_2*y_1 + 2*x_2*y_2)
-       (ACTIVE_PHASE.md, Raw Second Moments)
-
-    4. Centroidal Second Moments (Parallel Axis Theorem):
-       I_x = I_{x,0} - A * \\bar{y}^2
-       I_y = I_{y,0} - A * \\bar{x}^2
-       I_{xy} = I_{xy,0} - A * \\bar{x} * \\bar{y}
-       (ACTIVE_PHASE.md, Centroidal Second Moments)
-
-    5. Principal Second Moments & Tensor:
-       I = [[I_x, -I_{xy}], [-I_{xy}, I_y]]
-       Eigenvalues ordered I_1 >= I_2:
-       I_mean = (I_x + I_y) / 2
-       R = sqrt(((I_x - I_y) / 2)^2 + I_{xy}^2)
-       I_1 = I_mean + R
-       I_2 = I_mean - R
-       (ACTIVE_PHASE.md, Principal Properties)
-
-    6. Principal-Axis Angle:
-       theta_p = 0.5 * atan2(-2 * I_{xy}, I_x - I_y)
-       Quadrant-safe formulation. If |I_x - I_y| <= tol and |I_{xy}| <= tol,
-       section is degenerate (isotropic), theta_p = 0.0 by convention.
-       (ACTIVE_PHASE.md, Principal Properties)
+    The implemented relations are summarized in
+    ``docs/THEORY_AND_CONVENTIONS.md``. For straight segments with constant
+    thickness, the required line integrals are evaluated in closed form.
 
     Args:
         segments: Sequence of valid straight Segment objects.
@@ -145,7 +112,7 @@ def compute_properties(
         )
     total_area = _finite_fsum(areas, "Section area")
 
-    # Use a deterministic endpoint as a local origin.  Relative coordinates
+    # Use a deterministic endpoint as a local origin. Relative coordinates
     # avoid forming first moments of order A*translation and make results
     # invariant to both segment ordering and large rigid translations.
     reference_x, reference_y = min(
@@ -180,7 +147,7 @@ def compute_properties(
     if not math.isfinite(cx) or not math.isfinite(cy):
         raise GeometryError("Section centroid exceeds the supported floating-point range.")
 
-    # Preserve the specified raw origin moments for the public API.  fsum makes
+    # Preserve the specified raw origin moments for the public API. fsum makes
     # their accumulation insensitive to segment order at normal float scale.
     ix_raw = _finite_fsum(
         (seg.t * seg.int_y2() for seg in segments), "Raw I_x"
@@ -192,12 +159,12 @@ def compute_properties(
         (seg.t * seg.int_xy() for seg in segments), "Raw I_xy"
     )
 
-    # Evaluate the parallel-axis shift in its algebraically equivalent exact
+    # Evaluate the parallel-axis shift in its algebraically equivalent
     # centerline form, using coordinates relative to the centroid:
     #   I_x = sum(t * integral((y-cy)^2) ds), and analogously for I_y/I_xy.
-    # Directly subtracting I_0 - A*c^2 loses all meaningful digits after a
-    # large translation.  For a linear segment, midpoint/delta integration is
-    # exactly L*(m^2 + delta^2/12), and the product integral is exactly
+    # Directly subtracting I_0 - A*c^2 loses meaningful digits after a large
+    # translation. For a linear segment, midpoint/delta integration gives
+    # L*(m^2 + delta^2/12), and the product integral gives
     # L*(mx*my + dx*dy/12).
     ix_terms: list[float] = []
     iy_terms: list[float] = []
@@ -220,7 +187,7 @@ def compute_properties(
     iy = _finite_fsum(iy_terms, "Centroidal I_y")
     ixy = _finite_fsum(ixy_terms, "Centroidal I_xy")
     # Symmetric geometries can leave a cancellation residual of a few ulps in
-    # Ixy.  Use a purely relative roundoff bound (no dimensional absolute floor).
+    # Ixy. Use a purely relative roundoff bound (no dimensional absolute floor).
     moment_scale = max(abs(ix), abs(iy))
     if abs(ixy) <= 32.0 * sys.float_info.epsilon * moment_scale:
         ixy = 0.0
@@ -236,7 +203,7 @@ def compute_properties(
             "Principal moments exceed the supported floating-point range."
         )
 
-    # A covariance/inertia tensor is positive semidefinite.  Clamp only a
+    # A covariance/inertia tensor is positive semidefinite. Clamp only a
     # negative eigenvalue attributable to roundoff; never erase a small but
     # physically positive minor moment.
     eigenvalue_scale = max(abs(i1), abs(ix), abs(iy), abs(ixy))
@@ -262,7 +229,7 @@ def compute_properties(
     else:
         # Quadrant-safe atan2 convention: 0.5 * atan2(-2*Ixy, Ix - Iy)
         theta_p = 0.5 * math.atan2(-2.0 * ixy, ix - iy)
-        # Principal axes are unoriented lines modulo pi.  Normalize the one
+        # Principal axes are unoriented lines modulo pi. Normalize the one
         # possible boundary value to the documented interval (-pi/2, pi/2].
         if theta_p <= -math.pi / 2.0:
             theta_p += math.pi

@@ -1,24 +1,8 @@
-"""Exact thin-walled shear-center analysis for open sections (Sectalix v0.3).
+"""Thin-wall shear-center analysis for open sections.
 
-Computes the shear-center location S = (x_s, y_s) and centroid-relative offsets
-e_s = [e_x, e_y]^T using exact closed-form torque integration of the v0.2 physical
-shear-flow field about the section centroid.
-
-Governing Equations & Conventions (ACTIVE_PHASE.md):
-1. Scalar moment about centroid for in-plane force F = [Fx, Fy]^T at r_c = [xc, yc]^T:
-       Mz = (r_c x F)_z = xc * Fy - yc * Fx
-2. Shear-flow torque about centroid:
-       T_z(V) = sum_i int_0^{L_i} [r_{c,i}(s) x q_i(s)]_z ds
-   For straight segments with constant tangent t_i, (r_{c,i}(s) x t_i)_z is constant along segment:
-       T_{z,i} = [r_{c,i}(0) x t_i]_z * int_0^{L_i} q_i(s) ds
-               = (x_{c,1} * t_y - y_{c,1} * t_x) * int_0^{L_i} q_i(s) ds
-3. Governing torque definition for shear center offset e_s = [e_x, e_y]^T:
-       T_z(V) = (e_s x V)_z = e_x * V_y - e_y * V_x
-4. Unit basis load evaluation:
-       V^{(x)} = [1, 0]^T  ==>  T_z^{(x)} = -e_y  ==>  e_y = -T_z^{(x)}
-       V^{(y)} = [0, 1]^T  ==>  T_z^{(y)} =  e_x  ==>  e_x =  T_z^{(y)}
-       e_s = [T_z^{(y)}, -T_z^{(x)}]^T
-       x_s = cx + e_x,   y_s = cy + e_y
+The shear center is obtained from centroidal torque integration of the solved
+transverse shear-flow fields. Governing conventions are documented in
+``docs/THEORY_AND_CONVENTIONS.md``.
 """
 
 from __future__ import annotations
@@ -38,29 +22,20 @@ if TYPE_CHECKING:
 
 
 def compute_shear_flow_torque(result: ShearFlowResult) -> float:
-    """Compute the exact torque of the physical shear-flow field about the centroid.
+    """Compute the torque of the physical shear-flow field about the centroid.
 
-    Mathematical Basis (ACTIVE_PHASE.md):
-        T_z(V) = sum_i int_0^{L_i} [r_{c,i}(s) x q_i(s)]_z ds
-    For each straight segment i:
-        r_{c,i}(s) = r_{c,i}(0) + s * t_i
-        q_i(s) = q_i(s) * t_i
-        [r_{c,i}(s) x q_i(s)]_z = q_i(s) * [r_{c,i}(0) x t_i]_z
-    Therefore:
-        T_{z,i} = [r_{c,i}(0) x t_i]_z * int_0^{L_i} q_i(s) ds
-                = (x_{c,1} * t_y - y_{c,1} * t_x) * scalar_integral()
+    For each straight segment, the centroid-relative cross-product factor is
+    constant along the segment, so the torque contribution reduces to that
+    factor multiplied by the analytical integral of the scalar shear flow.
 
-    To prevent catastrophic cancellation under large coordinate translations (e.g. 1e12),
-    all centroid-relative distances are calculated using a local reference shift:
-        ref = min(node coordinates)
-        c_loc = centroid relative to ref
-        r_{c,1} = (p1 - ref) - c_loc
+    A local reference shift is used for centroid-relative distances to reduce
+    cancellation when the entire geometry is translated far from the origin.
 
     Args:
         result: A solved ShearFlowResult from calculate_shear_flow.
 
     Returns:
-        Total scalar torque T_z about the section centroid (positive out of plane, +z).
+        Total scalar torque about the section centroid, positive about +z.
 
     Raises:
         GeometryError: If any computed torque contribution or total is non-finite.
@@ -176,13 +151,13 @@ class ShearCenterResult:
         vy: float | None = None,
         safety_factor: float = 1e4,
     ) -> float:
-        """Evaluate residual torque for an arbitrary transverse shear load V = [Vx, Vy]^T.
+        """Evaluate residual torque for a transverse shear load V = [Vx, Vy]^T.
 
-        The residual torque is the difference between the torque of the v0.2 shear-flow
-        field about the centroid and the torque predicted by the shear-center resultant:
-            residual = T_z(V) - (e_x * V_y - e_y * V_x)
+        The residual is
 
-        By definition of the shear center, this residual must be zero within numerical tolerance.
+            T_z(V) - (e_x * V_y - e_y * V_x).
+
+        It should be zero within the numerical tolerance of the solved model.
 
         Args:
             vx: Force in x direction, or a ShearLoad object.
@@ -209,22 +184,12 @@ def compute_shear_center(
     section: Section,
     safety_factor: float = 1e4,
 ) -> ShearCenterResult:
-    """Compute exact shear-center location and centroid-relative offsets for an open section.
+    """Compute the shear-center location for an open thin-walled section.
 
-    Governing Mathematical Formulation (ACTIVE_PHASE.md):
-    1. Apply unit basis loads:
-           V^{(x)} = [1, 0]^T
-           V^{(y)} = [0, 1]^T
-    2. Solve exact v0.2 shear flow fields flow_x and flow_y.
-    3. Integrate exact shear-flow torques about centroid:
-           T_z^{(x)} = torque(flow_x)
-           T_z^{(y)} = torque(flow_y)
-    4. Centroid-relative shear-center offsets:
-           e_x =  T_z^{(y)}
-           e_y = -T_z^{(x)}
-    5. Absolute coordinates:
-           x_s = cx + e_x
-           y_s = cy + e_y
+    Unit transverse shear loads in the x and y directions are solved, their
+    centroidal torques are integrated, and the offsets follow from
+
+        T_z(V) = e_x * V_y - e_y * V_x.
 
     Args:
         section: Validated open Section object.

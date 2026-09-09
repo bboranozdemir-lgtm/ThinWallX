@@ -1,4 +1,4 @@
-"""T31–T36: build and install real artifacts, without modifying the checkout."""
+"""Build, validate, and install release artifacts without modifying the checkout."""
 from pathlib import Path
 import os
 import re
@@ -21,20 +21,20 @@ def checked(args: list[str], cwd: Path, env: dict[str, str]) -> str:
     return proc.stdout
 
 
-def test_t31_t32_version_entrypoint() -> None:
+def test_version_and_entrypoint() -> None:
     metadata = (ROOT / "pyproject.toml").read_text(encoding="utf-8")
     assert f'version = "{__version__}"' in metadata
     assert __version__ == "1.0.1"
     assert 'sectalix = "sectalix.cli:main"' in metadata
 
 
-def test_t34_no_unresolved_markers() -> None:
+def test_no_unresolved_source_markers() -> None:
     for source in (ROOT / "src/sectalix").glob("*.py"):
         assert not re.search(r"\b(TODO|FIXME|NotImplementedError)\b", source.read_text(encoding="utf-8")), source
     # Returning NotImplemented from binary operator dispatch is required Python behavior.
 
 
-def test_t35_documentation_links() -> None:
+def test_documentation_links() -> None:
     for name in DOCS:
         path = ROOT / "docs" / name
         text = path.read_text(encoding="utf-8")
@@ -44,7 +44,7 @@ def test_t35_documentation_links() -> None:
                 assert (path.parent / target.split("#")[0]).exists(), target
 
 
-def test_t33_t36_build_install_wheel_and_sdist(tmp_path: Path) -> None:
+def test_build_install_wheel_and_sdist(tmp_path: Path) -> None:
     project = tmp_path / "project"
     project.mkdir()
     for name in ("pyproject.toml", "README.md", "MANIFEST.in", "LICENSE"):

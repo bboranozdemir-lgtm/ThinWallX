@@ -1,4 +1,4 @@
-"""Planar graph decomposition and topology extraction for mixed open-closed sections (Sectalix v0.6).
+"""Planar graph decomposition and topology extraction for mixed open-closed sections.
 
 Implements deterministic graph decomposition:
 1. Bridge detection via Tarjan DFS: partitions edges into cyclic edges E_c and open bridges E_o.

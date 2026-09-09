@@ -1,4 +1,4 @@
-"""Exact thin-walled shear-flow analysis for open sections (Sectalix v0.2).
+"""Thin-wall shear-flow analysis for open sections.
 
 Solves C * alpha = V for arbitrary transverse shear load V = [Vx, Vy]^T and computes
 exact closed-form shear flow q(s) along straight centerline segments for open tree topologies.

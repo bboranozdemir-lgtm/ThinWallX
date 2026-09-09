@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "sectalix"
 version = "1.0.1"
-description = "Numerical analysis tool for arbitrary thin-walled structural sections"
+description = "Thin-wall section analysis with closed-form straight-segment integration"
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE"]

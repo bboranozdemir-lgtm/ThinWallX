@@ -1,72 +1,33 @@
-# Sectalix — Roadmap
+# Sectalix — Development History
 
-## Release seal — v1.0.1 (historical core v1.0.0 preserved)
+Sectalix reached its initial public scope in version 1.0. The milestones below summarize how the current capabilities were introduced.
 
-v0.1–v1.0 teslimat kapsamı **COMPLETED & FROZEN** olarak mühürlenmiştir.
-559 testlik v1.0 çekirdeği ve testleri değiştirilemez; v1.0.1 yeniden adlandırma
-doğrulaması bu çekirdeğe ek olarak bir uyumluluk testi içerir. Yol A yalnızca
-dağıtım ve CI/CD hazırlığıdır.
+| Version | Main capability |
+|---|---|
+| v0.1 | Centerline geometry, area, centroid, inertia, and principal axes |
+| v0.2 | Open-section transverse shear flow |
+| v0.3 | Shear-center calculation |
+| v0.4 | Open-section torsion and warping quantities |
+| v0.5 | Closed and multi-cell thin-wall mechanics |
+| v0.6 | Mixed open/closed topologies |
+| v0.7 | Combined linear-elastic stress recovery |
+| v0.8 | JSON interchange, DXF import, and technical plotting |
+| v1.0 | CLI, calculation reports, documentation, packaging, and release verification |
+| v1.0.1 | Project rename and packaging/compatibility cleanup |
 
-| Phase | Delivered scope | Status |
-|---|---|---|
-| v0.1 | Geometry, centroid, inertia and principal axes | COMPLETED & FROZEN |
-| v0.2 | Open shear flow | COMPLETED & FROZEN |
-| v0.3 | Shear center | COMPLETED & FROZEN |
-| v0.4 | Open torsion and warping | COMPLETED & FROZEN |
-| v0.5 | Closed and multicell mechanics | COMPLETED & FROZEN |
-| v0.6 | Mixed open/closed mechanics | COMPLETED & FROZEN |
-| v0.7 | Combined stress recovery | COMPLETED & FROZEN |
-| v0.8 | JSON, DXF and technical plots | COMPLETED & FROZEN |
-| v0.9 | Release preparation incorporated in v1.0; no separate versioned implementation record | COMPLETED & FROZEN within v1.0 |
-| v1.0 | CLI, calculation reports, documentation and packaging | COMPLETED & FROZEN |
+## Current Scope
 
-The v0.9 row does not assert a separate historical release or test run.
-Original scope summaries below are retained for traceability, not future-work authorization.
+The current release provides a complete implementation of the original section-analysis scope for supported piecewise-straight thin-walled centerline models.
 
-## v0.1 — Geometry and Basic Section Properties
-- centerline segment representation
-- constant thickness per segment
-- connected open-section topology, including branched open sections
-- area
-- centroid
-- Ix, Iy, Ixy
-- principal section properties
-- analytical benchmarks
-- explicit geometry validation
+The project does not currently include full finite-element analysis, nonlinear material behavior, buckling verification, composite-section mechanics, or design-code checks.
 
-## v0.2 — Open-Section Shear Flow
-- open thin-walled sections only
-- first-moment / shear-flow formulation
-- shear-flow distribution
-- benchmark cases
+## Possible Future Work
 
-## v0.3 — Shear Center
-- shear-center computation
-- sign-convention validation
-- technical visualization
-- benchmark cases
+If development continues, useful directions include:
 
-## v0.4 — Torsion and Warping
-- Saint-Venant torsion constant J
-- sectorial coordinate / warping function
-- warping constant Cw
-- benchmark cases
+- validation against additional published and industry-relevant benchmark sections
+- comparison studies with established section-analysis software
+- improved workflows for practical CAD-derived section definitions
+- carefully defined extensions for curved-wall or finite-thickness effects where the present centerline assumptions are insufficient
 
-## v0.5 — Closed and Multi-Cell Sections
-- closed-section topology support
-- closed-cell shear flow
-- compatibility equations
-- multi-cell systems
-- variable segment thickness support where appropriate
-
-## v1.0 — Production-Quality Technical Release
-- stable open/closed/multi-cell workflow
-- JSON input
-- optional DXF import
-- complete validation suite
-- technical plots and reports
-- documentation of conventions, formulas, assumptions, and limitations
-
-## Rule
-The roadmap is descriptive only.
-Version changes require an explicit project decision and release review.
+Any such extension should preserve explicit assumptions, independent verification, and reproducible numerical tests.

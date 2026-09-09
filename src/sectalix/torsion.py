@@ -1,11 +1,11 @@
-"""Exact open-section Saint-Venant torsion and warping analysis (Sectalix v0.4).
+"""Open-section thin-wall Saint-Venant torsion and warping analysis.
 
 Computes:
 1. Saint-Venant open-section torsion constant J = sum_i (1/3) * L_i * t_i^3
 2. Raw and normalized principal sectorial coordinates omega(s) with shear center as pole.
 3. Warping constant C_w = int_A omega^2 dA = sum_i (t_i * L_i / 3) * (omega_{i,1}^2 + omega_{i,1} * omega_{i,2} + omega_{i,2}^2)
 
-Governing Equations & Conventions (ACTIVE_PHASE.md):
+Governing equations and conventions:
 - Sectorial differential with shear center S = (x_s, y_s) as pole:
       d(omega_raw) = [r_S x dr]_z
 - Along straight segment i with constant tangent t_i:
@@ -13,7 +13,7 @@ Governing Equations & Conventions (ACTIVE_PHASE.md):
       omega_raw,i(s) = omega_raw,i(0) + p_i * s
       Delta omega_i = p_i * L_i
 - Tree propagation:
-      Exact propagation from arbitrary root node: omega_raw(root) = 0
+      Propagation from a selected root node: omega_raw(root) = 0
 - Area-weighted mean sectorial coordinate:
       bar{omega} = (1 / A) * sum_i t_i * (L_i / 2) * (omega_raw,i,1 + omega_raw,i,2)
 - Normalized principal sectorial coordinate:
@@ -42,7 +42,7 @@ if TYPE_CHECKING:
 
 @dataclass(frozen=True)
 class SegmentWarping:
-    """Exact warping properties along a single straight centerline segment.
+    """Warping quantities along a single straight centerline segment.
 
     Parameters
     ----------
@@ -181,7 +181,7 @@ class TorsionWarpingResult:
 
     @property
     def integral_omega_da(self) -> float:
-        """Exact integral of normalized sectorial coordinate over the section: int_A omega dA.
+        """Closed-form integral of normalized sectorial coordinate over the section: int_A omega dA.
 
         By definition of zero-mean principal normalization, this must be zero within floating-point tolerance.
         """
@@ -199,11 +199,11 @@ def compute_torsion_warping(
 ) -> TorsionWarpingResult:
     """Compute open-section Saint-Venant torsion constant J, sectorial coordinates, and warping constant C_w.
 
-    Governing Mathematical Formulation (ACTIVE_PHASE.md):
+    Governing mathematical formulation:
     1. Saint-Venant open-section torsion constant:
            J = sum_i (1/3) * L_i * t_i^3
        using compensated summation (math.fsum).
-    2. Obtain accepted v0.3 shear-center location S = (x_s, y_s) and centroid-relative offset e_s = [e_x, e_y]^T.
+    2. Obtain the shear-center location S = (x_s, y_s) and centroid-relative offset e_s = [e_x, e_y]^T.
     3. Position relative to shear center:
            r_S,k = r_{c,k} - e_s
        using local reference coordinates to maintain precision under large translations (1e12).
@@ -216,7 +216,7 @@ def compute_torsion_warping(
            bar{omega} = (1 / A) * sum_i t_i * (L_i / 2) * (omega_raw,i,1 + omega_raw,i,2)
     7. Normalized principal sectorial coordinate:
            omega = omega_raw - bar{omega}
-    8. Exact warping constant:
+    8. Closed-form straight-segment warping integral:
            C_w = sum_i (t_i * L_i / 3) * (omega_{i,1}^2 + omega_{i,1} * omega_{i,2} + omega_{i,2}^2)
 
     Args:
@@ -290,7 +290,7 @@ def compute_torsion_warping(
             val = float("inf")
         j_contributions.append(val)
 
-    # 2. Accepted v0.3 shear center pole
+    # 2. Shear-center pole
     sc_result = section.compute_shear_center(safety_factor=safety_factor)
     ex, ey = sc_result.ex, sc_result.ey
     xs, ys = sc_result.x, sc_result.y

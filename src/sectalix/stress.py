@@ -1,4 +1,4 @@
-"""v0.7 stress recovery, following ACTIVE_PHASE.md §§2–3.
+"""Linear-elastic stress recovery for supported thin-wall section models.
 
 Polynomials are assembled in xi=s/L and only converted to dimensional coefficients
 for the public API. Normal resultants follow the specified section-face convention:

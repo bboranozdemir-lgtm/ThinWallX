@@ -1,9 +1,9 @@
-"""Mixed open-closed transverse shear-flow analysis (Sectalix v0.6).
+"""Mixed open-closed transverse shear-flow analysis.
 
-Implements the exact thin-walled mixed open-closed formulation:
+Implements the documented thin-wall mixed open-closed formulation:
 1. Spanning tree containing all open bridges E_o; exactly n_c chords chosen strictly from E_c.
 2. Zero virtual cuts on open branches; virtual cuts placed only within closed chord walls.
-3. Particular basic shear flow q_b(s) via accepted open-tree mechanics with q_b=0 at real free tips.
+3. Particular basic shear flow q_b(s) via the open-tree shear-flow solver with q_b=0 at real free tips.
 4. Dimensionless compatibility vector b_c = sum_i B_ci \\int (q_{b,i}/t_i) ds via frexp/ldexp scaling.
 5. Direct solve of H_scaled * q0_scaled = -b_scaled for closed cell circulations.
 6. Assembly of continuous physical shear flow q_e(s) = q_{b,e}(s) + (B^T q_0)_e.
@@ -453,7 +453,7 @@ def calculate_mixed_shear_flow(
 
         chord_to_cut_pieces[s_idx] = (piece_a_idx, piece_b_idx)
 
-    # 4. Solve basic cut-open shear flow q_b using exact accepted v0.2 mechanics
+    # 4. Solve basic cut-open shear flow q_b using exact mechanics
     ref_x = min(n.x for n in canonical_nodes)
     ref_y = min(n.y for n in canonical_nodes)
 

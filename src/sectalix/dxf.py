@@ -1,4 +1,4 @@
-"""Restricted ASCII DXF centerlines (AC1009/AC1015), v0.8 §3.
+"""Restricted ASCII DXF centerline import for AC1009/AC1015 files.
 
 Entity interpretation follows Autodesk DXF LINE/POLYLINE/LWPOLYLINE references.
 Exact rational projection predicates avoid overflow in tolerance squares and
