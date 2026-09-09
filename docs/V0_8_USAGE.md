@@ -1,40 +1,44 @@
-# Sectalix v0.8 interchange format — kullanım
+# Sectalix v0.8 interchange format
 
-Bu belge, uygulama markasından bağımsız v0.8 interchange formatını açıklar. v0.1–v0.7 mekanik kodu değişmez; `format: "thinwallx"` alanı geriye dönük uyumluluk için korunur. API'leri doğrudan ilgili modülden import edin.
+This document describes the v0.8 JSON interchange format, the supported ASCII DXF import path, and the optional plotting interface.
 
-## JSON
+The wire-format identifier `"format": "thinwallx"` is intentionally retained for backward compatibility with files created before the project was renamed to Sectalix. It is a serialization identifier, not the current package name.
 
-~~~python
-from sectalix import Node, Segment, Section, AppliedLoads
-from sectalix.serialization import (
-    UnitSystem, to_dict, from_dict, to_json, from_json, write_json, read_json,
-)
+## JSON interchange
+
+```python
+from sectalix import Node, Segment, Section
+from sectalix.serialization import UnitSystem, to_json, from_json
 
 section = Section([
     Segment(Node(0.0, 0.0), Node(2.0, 0.0), 0.01, id="flange"),
     Segment(Node(0.0, 0.0), Node(0.0, 1.0), 0.01, id="web"),
 ])
+
 units = UnitSystem(length="mm", force="N")
 wire = to_json(section, units=units)
 document = from_json(wire)
+
 restored_section = document.value
 assert document.units == units
 assert restored_section.segments == section.segments
-~~~
+```
 
-from_dict/from_json/read_json bir DecodedDocument döndürür: value ve units. to_dict/to_json/write_json hem ham nesne hem bu zarfı kabul eder. Birim etiketi sayı dönüştürmez; mevcut zarfı farklı birimle yeniden etiketleme reddedilir.
+`from_dict`, `from_json`, and `read_json` return a `DecodedDocument` containing both the decoded value and its unit metadata. Unit labels are descriptive and do not rescale numerical values.
 
-Fiziksel değerler kanonik float.hex string kaydıdır; decimal JSON number kabul edilmez. Signed zero ve alt-normal sayılar bit düzeyinde korunur. JSON şeması schemas/sectalix-0.8.schema.json dosyasındadır; çapraz referans/topoloji/peak doğrulaması Python okuyucusunda uygulanır.
+Physical floating-point values are serialized using canonical `float.hex` strings so that supported IEEE-754 binary64 values can be reconstructed exactly. Ordinary decimal JSON numbers are not accepted in fields defined by the v0.8 schema as encoded floating-point values.
 
-Desteklenen ID'ler None, str, int, bool, sonlu float ve bu tiplerden tuple'dır. Özel Python nesneleri taşınamaz. Result sözlüğü ID'leri string'e çevrilmez.
+The JSON schema is available at [`schemas/sectalix-0.8.schema.json`](../schemas/sectalix-0.8.schema.json). Additional cross-reference, topology, and result-consistency checks are performed by the Python decoder.
 
-AppliedLoads ve StressRecoveryResult aynı codec ile saklanabilir. Sonuç dosyası geometri ve yükleri içermez; bunlar ayrı belgeler olarak saklanmalıdır. Peak katsayı tutarlılığı denetlenir; bağımsız arşiv mekanik sertifika veya dijital imza değildir.
+Supported object identifiers are limited to serializable scalar or tuple-like values defined by the codec. Arbitrary Python objects are not serialized or reconstructed.
 
-write_json varsayılan olarak mevcut dosyayı ezmez. overwrite=True yalnız açıkça istendiğinde kullanılır. Okuyucular byte/derinlik/kayıt limitleri uygular.
+`AppliedLoads` and `StressRecoveryResult` can use the same interchange system. A stress-result document does not automatically embed the source geometry and load document; applications that require a complete audit record should store those inputs alongside the result.
 
-## ASCII DXF
+`write_json` does not overwrite an existing file unless `overwrite=True` is requested explicitly. The decoder also applies configurable limits to input size, nesting, and record counts.
 
-~~~python
+## ASCII DXF import
+
+```python
 from sectalix.dxf import DxfImportOptions, ThicknessMap, read_dxf
 
 options = DxfImportOptions(
@@ -44,62 +48,88 @@ options = DxfImportOptions(
     node_tolerance=1e-9,
     section_kind="auto",
 )
+
 imported = read_dxf("section.dxf", options=options)
 section = imported.section
 report = imported.report
-~~~
+```
 
-THICK_5.0 gibi layer adları desteklenir. Öncelik handle > layer > THICK adı > açık default'tur. Eşleme kalınlıkları kaynak biriminde, node_tolerance hedef birimindedir. Kullanılmayan eşlemeler yazım hatasını gizlememek için reddedilir.
+Thickness can be assigned by entity handle, layer mapping, a `THICK_<value>` layer name, or an explicit fallback thickness. More specific mappings take precedence. Thickness mapping is interpreted in the source DXF length unit, while node tolerance is interpreted in the target unit.
 
-AC1009: LINE ve düz 2D POLYLINE. AC1015: ayrıca LWPOLYLINE. Bulge, nonzero width/extrusion thickness, eğik extrusion normal, 3D polyline, INSERT ve yaylar reddedilir. DXF 39/370 kodları sac t'si değildir.
+The importer intentionally supports a restricted subset of ASCII DXF suitable for straight centerline geometry:
 
-Varsayılan normalize etme endpoint snapping ve açık T-birleşimi bölmesidir. Değişimler report.changes/provenance içindedir. Geçişli yakınlık kümesinin çapı toleransı aşıyorsa hata verilir. X kesişimleri ve örtüşmeler onarılmaz. Sadece exact ham geometri isteyen kullanıcı node_tolerance=0 ve junction_policy="reject" seçebilir.
+- AC1009: `LINE` and straight 2D `POLYLINE`
+- AC1015: the above plus straight `LWPOLYLINE`
 
-varsayılan okuma ascii'dir; legacy layer adları için encoding="cp1254" gibi açık codec verilebilir. Codepage çelişkisi, eksik EOF/sürüm ve bozuk grup çiftleri reddedilir. Bu bir genel CAD okuyucusu değildir.
+Curved bulge segments, unsupported widths or extrusion settings, 3D polylines, `INSERT`, arcs, and other unsupported entities are rejected rather than approximated silently.
 
-Bağlı açık ağaç Section, saf hücreli grafik ClosedSection, hücre+köprü MixedSection olur. section_kind ile açıkça sınıf istenebilir; uyumsuz geometri hata verir. Grafik işlem bütçesi max_pair_checks ile sınırlıdır; varsayılan 2 milyon muhafazakâr işlem tahminidir.
+The importer is not a general-purpose CAD kernel. Its purpose is to extract supported straight centerline geometry with explicit thickness information and pass that geometry through Sectalix validation.
 
-## Teknik çizimler
+Endpoint snapping and supported open-junction handling are controlled by the import options. Any geometric changes made by the importer are recorded in the returned import report. Intersections or overlaps that cannot be handled unambiguously are rejected.
 
-Grafik bağımlılığı isteğe bağlıdır:
+Automatic topology classification returns an open `Section`, a closed `ClosedSection`, or a `MixedSection` according to the validated graph. A caller may request a specific section kind; incompatible geometry then raises an error.
 
-~~~console
+## Plotting
+
+Plotting is optional:
+
+```console
 python -m pip install -e ".[plots]"
-~~~
+```
 
-~~~python
+Example:
+
+```python
 from sectalix import AppliedLoads
 from sectalix.plotting import (
-    plot_geometry, plot_shear_flow, plot_stresses,
-    GeometryPlotOptions, StressPlotOptions,
+    plot_geometry,
+    plot_shear_flow,
+    plot_stresses,
+    GeometryPlotOptions,
+    StressPlotOptions,
 )
 
-plot_geometry(section, "geometry.svg",
-              options=GeometryPlotOptions(show_shear_center=True, show_principal_axes=True))
+plot_geometry(
+    section,
+    "geometry.svg",
+    options=GeometryPlotOptions(
+        show_shear_center=True,
+        show_principal_axes=True,
+    ),
+)
+
 flow = section.calculate_shear_flow(vx=0.0, vy=1.0)
 plot_shear_flow(section, flow, "shear.png")
+
 stress = section.calculate_stresses(AppliedLoads(N=1.0, Mx=0.1))
-plot_stresses(section, stress, "stress.svg",
-              options=StressPlotOptions(quantity="sigma_vm", abscissa="segment"))
-~~~
+plot_stresses(
+    section,
+    stress,
+    "stress.svg",
+    options=StressPlotOptions(quantity="sigma_vm", abscissa="segment"),
+)
+```
 
-Çağrılar kendi figürlerini oluşturur ve kapatır; pencere açmaz. Canlı Figure yerine PlotReport döner. Varsayılan overwrite=False'dur. PNG/SVG desteklenir.
+Plotting functions create and close their own figures and do not require an interactive GUI. PNG and SVG output are supported.
 
-Geometri equal-aspect'tir; fiziksel farklar yerel origin ve 2'nin kuvvetiyle normalize edilir. Renk çubuğundaki ölçek görseldir, fiziksel değer değiştirilmez. Tam field_scale raporda float.hex biçimindedir. Kalınlık bantları katı kesit değil, orta-hat modelinin görsel yardımcısıdır.
+Thickness bands are a visualization aid for the centerline model; they should not be interpreted as a finite-width solid-section mesh. Reported mechanical extrema come from the analysis result, not from visual plot sampling.
 
-Kayma okları q*tangent yönündedir. Stress maksimumu v0.7 sonucundan alınır, grafik örnekleriyle aranmaz. abscissa="segment" yerel s eğrileri; "concatenated" ayrık segmentleri grafiksel olarak yan yana koyar ve fiziksel çevre olmadığını etiketler.
+Byte-identical image output is only expected within a consistent rendering environment. Font, Matplotlib, and platform differences can change the rendered bytes without changing the underlying mechanical result.
 
-Bayt determinizmi aynı Python/numpy/matplotlib/font ortamı için sınanır; farklı render sürümlerinde aynı bayt garantisi yoktur.
+## Examples and tests
 
-## Çalışan örnekler ve testler
+The source repository includes:
 
-Kaynak depoda examples/sample_sections altında açık L, kapalı kutu ve barbell girişleri, examples/sample_calculation altında seçilmiş hesap raporu ve grafikler bulunur. Python API örneği examples/quickstart_api.py dosyasındadır. Aşağıdaki komutlar kaynak deponun kökünde, editable kurulumdan sonra çalıştırılır; örnekler wheel ile kurulmaz. Eski v08 çıktı üretim betiği ve tekrarlı çıktılar kaldırılmıştır.
+- `examples/sample_sections/` — representative open, closed, and mixed DXF inputs
+- `examples/sample_calculation/` — selected calculation output and plots
+- `examples/quickstart_api.py` — a compact Python API example
 
-~~~console
+From a source checkout:
+
+```console
 python examples/quickstart_api.py
 sectalix inspect examples/sample_sections/rectangle.dxf
-python -m pytest -W error tests/test_serialization.py tests/test_dxf_import.py tests/test_dxf_benchmarks.py tests/test_plotting.py
 python -m pytest -W error
-~~~
+```
 
-Hiçbir test sayısı tek başına bütün matematiksel hataların yokluğunun kanıtı değildir. Kullanıcının resmî dondurma onayı bağımsız adversarial denetim yapılmış olduğu iddiasını taşımaz.
+Passing tests provide regression and benchmark evidence for the documented implementation. They do not establish correctness for every possible geometry or replace independent engineering validation for a safety-critical application.
