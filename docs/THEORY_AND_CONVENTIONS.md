@@ -2,100 +2,238 @@
 
 ## Model and applicability
 
-Sectalix uses straight centerline segments with constant positive thickness per segment. It assumes a homogeneous, linear-elastic thin wall. Area is t ds, not a union of finite-width polygons: corner overlaps, fillets and local plate bending are omitted. Buckling, yielding redistribution, fatigue, connections and design-code checks are outside scope. J and Cw are geometric constants; stiffnesses are GJ and ECw when compatible material properties are supplied outside this section library.
+Sectalix represents a thin-walled cross-section by straight wall-centerline segments. Each segment has a constant positive thickness. The area measure is therefore `t ds`, rather than the union of finite-width wall polygons.
 
-The frozen source is the executable convention. Sectalix application versions and the
-v0.8 interchange schema version are versioned independently. The rename preserves the
-legacy `format: "thinwallx"` wire identifier so existing files remain readable. See
-[verification](VERIFICATION_BENCHMARKS.md) and [CLI reference](CLI_REFERENCE.md).
+The model assumes a homogeneous, linear-elastic thin wall. Corner overlaps, fillets, root radii, local plate bending, buckling, yielding redistribution, fatigue, connections, and design-code checks are outside the present formulation. The quantities `J` and `Cw` are geometric section constants within the documented thin-wall models; compatible material properties are required to form stiffnesses such as `GJ` and `E Cw`.
 
-## Axes, loads and resultants
+Sectalix uses IEEE-754 double-precision arithmetic. The implementation includes scale-aware calculations and explicit numerical checks, but it does not provide arbitrary-precision arithmetic.
 
-x points right, y up and z out of the section, forming a right-handed basis. X=x-cx and Y=y-cy are centroid-relative. Positive N is tensile. The exact normal-resultant convention is
+The v0.8 interchange identifier `"format": "thinwallx"` is retained for backward compatibility with files created before the project was renamed to Sectalix.
 
-$$N=\int_A\sigma\,dA,\quad M_x=-\int_A Y\sigma\,dA,\quad
-M_y=\int_A X\sigma\,dA,\quad B=\int_A\omega^\ast\sigma\,dA.$$
+## Axes, loads, and resultants
 
-Vx and Vy are the integrals of the transverse flow vector components. Positive Tsv is torque about +z. M_omega is the secondary warping moment with the signed secondary-flow convention below. Units are F for N,V; FL for Mx,My,Tsv,M_omega; FL² for B; F/L² for stress. Unit metadata never converts JSON quantities.
+The section coordinate system is right-handed: `x` points right, `y` points up, and `z` points out of the section plane. Let
 
-## Exact straight-segment integration
+$$X=x-c_x,\qquad Y=y-c_y$$
 
-Let r(s)=r1+s u, 0≤s≤L, u=(r2-r1)/L. For any two linear fields f,g with endpoint values f1,f2,g1,g2,
+be centroid-relative coordinates.
+
+Positive `N` is tensile. The normal-stress resultant convention is
+
+$$N=\int_A\sigma\,dA,$$
+
+$$M_x=-\int_A Y\sigma\,dA,$$
+
+$$M_y=\int_A X\sigma\,dA,$$
+
+$$B=\int_A\omega^\ast\sigma\,dA.$$
+
+`Vx` and `Vy` are the integrals of the transverse shear-flow vector components. Positive `Tsv` is torque about `+z`. `M_omega` is the secondary warping moment used by the stress-recovery formulation.
+
+Typical dimensions are:
+
+- `N`, `Vx`, `Vy`: force
+- `Mx`, `My`, `Tsv`, `M_omega`: force × length
+- `B`: force × length²
+- stress: force / length²
+
+Sectalix is unit-agnostic and does not automatically convert values between unit systems.
+
+## Closed-form straight-segment integration
+
+For a straight segment parameterized by
+
+$$\mathbf r(s)=\mathbf r_1+s\mathbf u,\qquad 0\le s\le L,$$
+
+where `u` is the unit tangent, any field that varies linearly between endpoint values can be integrated directly.
+
+For a linear field `f` and two linear fields `f`, `g`,
 
 $$\int_0^L f\,ds=\frac{L}{2}(f_1+f_2),$$
+
 $$\int_0^L fg\,ds=\frac{L}{6}(2f_1g_1+f_1g_2+f_2g_1+2f_2g_2).$$
 
-Multiplication by t gives area integrals. Thus Ai=tL, first moments are Ai(x1+x2)/2 and Ai(y1+y2)/2, and A=sum Ai. The centroid is the first-moment sum divided by A. Raw Ix integrates y², raw Iy integrates x² and raw Ixy integrates xy. Their centroidal forms are Ix=Ix_raw-A cy², Iy=Iy_raw-A cx² and Ixy=Ixy_raw-A cx cy. Production uses local reference shifts to avoid subtracting unnecessarily large raw global moments. These identities do not authorize a numerically unstable raw-global implementation.
+Multiplication by thickness gives the corresponding thin-wall area integrals. For segment `i`,
 
-Ixy is positive for positive correlation of X and Y. The inertia tensor for axis rotation is
+$$A_i=t_iL_i.$$
 
-$$I=\begin{pmatrix}I_x&-I_{xy}\\-I_{xy}&I_y\end{pmatrix}.$$
+The total area and first moments give
 
-Its ordered eigenvalues I1≥I2 are the principal moments. With d=hypot(Ix-Iy,2Ixy), I1,2=(Ix+Iy±d)/2. The I1 axis angle is theta=atan2(-2Ixy,Ix-Iy)/2, mapped to (-pi/2,pi/2]. Isotropic axes are not uniquely defined; the frozen convention chooses zero. Do not confuse this inertia tensor with the positive-off-diagonal matrix C used below.
+$$A=\sum_i A_i,$$
 
-## Shear flow and tree equilibrium
+$$c_x=\frac{1}{A}\sum_i A_i\frac{x_{i1}+x_{i2}}{2},\qquad
+c_y=\frac{1}{A}\sum_i A_i\frac{y_{i1}+y_{i2}}{2}.$$
 
-$$C=\begin{pmatrix}I_y&I_{xy}\\I_{xy}&I_x\end{pmatrix},\qquad
-C\alpha=(V_x,V_y)^T.$$
+Raw second moments follow from the same straight-segment identities. The centroidal quantities are equivalent to
 
-On a directed segment, with xi=s/L,
+$$I_x=I_{x,0}-Ac_y^2,$$
 
-$$m_{\rm partial}(\xi)=tL\left[\xi(X_1,Y_1)^T+
-\frac{\xi^2}{2}(\Delta x,\Delta y)^T\right],$$
+$$I_y=I_{y,0}-Ac_x^2,$$
+
+$$I_{xy}=I_{xy,0}-Ac_xc_y.$$
+
+The implementation evaluates centroidal moments using local reference shifts where useful to reduce cancellation under large rigid translations.
+
+## Principal properties
+
+Sectalix uses the inertia tensor
+
+$$\mathbf I=
+\begin{pmatrix}
+I_x & -I_{xy}\\
+-I_{xy} & I_y
+\end{pmatrix}.$$
+
+Let
+
+$$d=\operatorname{hypot}(I_x-I_y,2I_{xy}).$$
+
+The ordered principal moments are
+
+$$I_{1,2}=\frac{I_x+I_y\pm d}{2},\qquad I_1\ge I_2.$$
+
+The principal-axis angle associated with `I1` is
+
+$$\theta_p=\frac12\operatorname{atan2}(-2I_{xy},I_x-I_y),$$
+
+mapped to the documented interval. For an isotropic inertia tensor, the principal direction is not unique; the implementation returns zero by convention.
+
+## Open-section transverse shear flow
+
+For an open tree topology, define
+
+$$\mathbf C=
+\begin{pmatrix}
+I_y&I_{xy}\\
+I_{xy}&I_x
+\end{pmatrix},\qquad
+\mathbf C\boldsymbol\alpha=
+\begin{pmatrix}V_x\\V_y\end{pmatrix}.$$
+
+For a directed segment with normalized coordinate `xi = s/L`, the partial first-moment vector is
+
+$$\mathbf m_{\rm partial}(\xi)=tL\left[
+\xi(X_1,Y_1)^T+
+\frac{\xi^2}{2}(\Delta x,\Delta y)^T
+\right].$$
+
+The shear flow along that segment is a quadratic polynomial,
+
 $$q(\xi)=a_0-tL(\alpha_xX_1+\alpha_yY_1)\xi
 -\frac{tL}{2}(\alpha_x\Delta x+\alpha_y\Delta y)\xi^2.$$
 
-a0 is set by the directed subtree balance. Each physical edge is counted once; reversal reverses the scalar flow convention while preserving q u. Free ends have zero flow and junctions satisfy signed Kirchhoff balance. Integrals of q and its first moments use polynomial antiderivatives, not plot samples. C must be positive definite and sufficiently conditioned: lambda_min must exceed 10^4 epsilon_machine lambda_max.
+The integration constant `a0` follows from subtree equilibrium. Free ends have zero flow, and signed flow balance is enforced at junctions. Integrals of `q` and its moments are evaluated from polynomial antiderivatives rather than sampled plot values.
 
-## Torque and shear center
+The inertia matrix used in the shear solution must be positive definite and sufficiently well conditioned for the requested calculation.
 
-For a reference point rref, p=(x1-xref)uy-(y1-yref)ux is constant on a straight segment. Its +z torque is p integral(q ds). Summing gives Tref. About the centroid, ex=Tc(Vx=0,Vy=1), ey=-Tc(Vx=1,Vy=0); S=C+(ex,ey). This is consistent with ex Vy-ey Vx. Internal calculations preserve local offsets; adding a small offset to a huge global coordinate is still limited by the spacing of representable float64 coordinates.
+## Shear center
 
-## Closed cells and mixed topology
+For a reference point `r_ref`, the torque contribution of a straight segment is obtained from
 
-A planar half-edge embedding identifies bounded faces. Oriented cell areas follow the shoelace formula using a local reference. The signed cell-edge incidence B assigns opposite signs to a shared wall. With rho_e=L_e/t_e,
+$$T_{\rm ref}=\int (\mathbf r-\mathbf r_{\rm ref})\times(q\mathbf u)\,ds.$$
 
-$$H=B\,\operatorname{diag}(\rho_e)B^T,\qquad H\phi=2A_c,$$
-$$F=B^T\phi,\qquad J_{BB}=2A_c^T\phi.$$
+Because the cross product factor is constant along a straight segment, the segment torque reduces to that factor multiplied by `∫q ds`.
 
-The transverse solution uses a virtual-cut tree flow qb and constant cell circulations q0: H q0=-b, b=B integral(qb/t ds), q=qb+B^Tq0. Cut choices must not change the physical solution. These equations are the thin-wall Bredt-Batho compatibility and torque relations, not a finite-thickness torsion solution.
+Evaluating the centroidal torque for unit basis shear loads gives the centroid-relative shear-center offsets. With the implemented sign convention,
 
-Tarjan bridge detection partitions mixed sections into open bridges and cyclic components. The cyclic subgraph obeys nc=|Ec|-|Vc|+kc. Independent cyclic blocks have no H coupling and are scaled and solved separately; a remote cell must not erase another through a global scale choice.
+$$e_x=T_c(V_x=0,V_y=1),$$
 
-$$J_{\rm open}=\frac{1}{3}\sum_{e\in E_{\rm open}}L_et_e^3,\qquad
-J_{\rm total}=J_{BB}+J_{\rm open}.$$
+$$e_y=-T_c(V_x=1,V_y=0),$$
 
-Closed walls are excluded from the open sum. This mixed model is the frozen thin-wall approximation, not an additional full-solid torsion correction.
+and
 
-## Warping
+$$S=(c_x+e_x,c_y+e_y).$$
 
-The pole is the shear center. For an open edge d omega/ds=p; on a closed edge d omega/ds=p-F_e/t_e. Signed traversal maintains continuous node values and closed-cycle compatibility. Subtract the area-weighted mean over every edge:
+## Closed cells and Bredt-Batho torsion
 
-$$\omega^\ast=\omega-\frac{\int_A\omega\,dA}{A},\qquad
-C_w=\sum_e\frac{t_eL_e}{3}
-\left((\omega_1^\ast)^2+\omega_1^\ast\omega_2^\ast+(\omega_2^\ast)^2\right).$$
+For a closed or multi-cell section, bounded faces are identified from a planar half-edge representation. Oriented cell areas are evaluated with the shoelace relation using local coordinates.
 
-Mean removal makes root choice irrelevant, subject to rounding. Shear-center warping has zero bending cross moments in the underlying model. Near-zero computed values are not automatically exact mathematical zero. A zero-resistance section cannot carry nonzero B or M_omega.
+Let `B` be the signed cell-edge incidence matrix and
 
-## Stress recovery and peak search
+$$\rho_e=\frac{L_e}{t_e}.$$
 
-With D=Ix Iy-Ixy²,
+The cell flexibility matrix is
 
-$$\sigma_{zz}=\frac{N}{A}+
-\frac{M_yI_x+M_xI_{xy}}{D}X-
-\frac{M_xI_y+M_yI_{xy}}{D}Y+
-\frac{B}{C_w}\omega^\ast.$$
+$$\mathbf H=\mathbf B\,\operatorname{diag}(\rho_e)\mathbf B^T.$$
 
-The secondary membrane flow is -M_omega/Cw times the directed warping static moment, with closed-cell compatibility corrections. Membrane stress is the combined transverse, secondary and closed-wall torsional flow divided by t. Closed torsional flow is Tsv F/Jtotal. On an open wall the opposing Saint-Venant surface stresses have magnitude |Tsv|t/Jtotal. The conservative surface envelope is |tau_membrane|+|tau_sv_surface|.
+For Saint-Venant torsion in the Bredt-Batho thin-wall model,
+
+$$\mathbf H\boldsymbol\phi=2\mathbf A_c,$$
+
+$$\mathbf F=\mathbf B^T\boldsymbol\phi,$$
+
+$$J_{BB}=2\mathbf A_c^T\boldsymbol\phi.$$
+
+This is a thin-wall closed-cell formulation, not a full finite-thickness torsion solution.
+
+For transverse shear, the section is represented by a compatible basic flow plus constant cell circulations. The circulations are obtained from the same cell compatibility structure so that the final physical flow is independent of the virtual cut used to form the open tree.
+
+## Mixed open/closed sections
+
+Mixed sections are decomposed into cyclic regions and open bridge branches. Closed-cell mechanics are applied to the cyclic regions, while open branches contribute their thin-strip Saint-Venant term.
+
+The implemented torsion model uses
+
+$$J_{\rm open}=\frac13\sum_{e\in E_{\rm open}}L_et_e^3,$$
+
+$$J_{\rm total}=J_{BB}+J_{\rm open}.$$
+
+Closed walls are not included again in the open-strip sum.
+
+## Warping quantities
+
+The shear center is used as the pole for sectorial-coordinate calculations. On an open edge,
+
+$$\frac{d\omega}{ds}=p,$$
+
+while on a closed wall the compatible closed-cell correction gives
+
+$$\frac{d\omega}{ds}=p-\frac{F_e}{t_e}.$$
+
+The sectorial field is propagated through the section graph and shifted to zero area-weighted mean,
+
+$$\omega^\ast=\omega-rac{\int_A\omega\,dA}{A}.$$
+
+The warping constant is then
+
+$$C_w=\sum_e\frac{t_eL_e}{3}
+\left[(\omega_1^\ast)^2+\omega_1^\ast\omega_2^\ast+(\omega_2^\ast)^2\right].$$
+
+Small numerical residuals near theoretical zero are treated according to the documented floating-point tolerances; a near-zero computed value is not automatically interpreted as an exact mathematical zero.
+
+## Stress recovery
+
+With
+
+$$D=I_xI_y-I_{xy}^2,$$
+
+the normal stress is
+
+$$\sigma_{zz}=\frac{N}{A}
++\frac{M_yI_x+M_xI_{xy}}{D}X
+-\frac{M_xI_y+M_yI_{xy}}{D}Y
++\frac{B}{C_w}\omega^\ast.$$
+
+The membrane shear stress is obtained from the combined transverse, secondary-warping, and closed-wall torsional shear flows divided by thickness. Open-wall Saint-Venant torsion is represented by the opposing surface stresses defined by the thin-strip model.
+
+The reported surface von Mises stress is
 
 $$\sigma_{vm}=\sqrt{\sigma_{zz}^2+3\tau_{\rm surface}^2}.$$
 
-Normal stress is linear and membrane stress quadratic on a segment. Squared von Mises stress is quartic on each fixed-sign membrane interval. Endpoints, membrane sign-change roots and admissible stationary roots of the quartic derivative are candidates. Plot discretization does not determine the reported maximum. With supplied positive yield stress, the proportional elastic first-yield multiplier is sigma_yield/max_sigma_vm; a zero-stress state has an unbounded multiplier, not an infinite engineering capacity.
+Along each straight segment, the normal stress is linear and the membrane shear stress is polynomial. Sectalix evaluates the candidate extrema analytically from the resulting polynomial conditions instead of using plot discretization to determine the reported peak.
+
+If a positive yield stress is supplied, the proportional elastic first-yield multiplier is
+
+$$\lambda=\frac{\sigma_{yield}}{\max\sigma_{vm}}.$$
+
+This is an elastic first-yield indicator only. It is not a buckling check, code-based resistance, or safety certification.
 
 ## Numerical and input contract
 
-Finite endpoints, positive length/thickness and valid connected planar topology are required. Node clustering uses the frozen tolerance rules; geometry smaller than that tolerance is not recovered by CLI inference. Input coordinates already rounded to the same float cannot be separated by local shifting.
+Valid calculations require finite coordinates, positive segment lengths and thicknesses, and a connected planar topology compatible with the selected solver.
 
-Mantissa/exponent products (frexp/ldexp), aligned sums, scaled solves and local origins reduce intermediate overflow and underflow. They do not provide arbitrary precision. Unrepresentable required physical outputs raise numerical exceptions instead of DBL_MAX clamping. A genuinely nonzero result below the subnormal range is not silently advertised as exact zero. Subnormal relative accuracy remains limited by quantization. Ill-conditioned matrices are rejected, not regularized without consent.
+The implementation uses local origins, compensated or aligned summation where appropriate, scaled linear solves, and exponent-aware arithmetic in extreme-scale paths to reduce avoidable overflow, underflow, and cancellation. These techniques improve robustness but do not extend double precision into arbitrary precision.
 
-JSON uses exact float64 hexadecimal strings and validates all fields through the frozen codec. Reports print 17 significant digits. Decimal CLI input is checked for nonzero-to-zero conversion and overflow. See [v0.8 format rules](V0_8_USAGE.md) for exact interchange and DXF limits.
+Severely ill-conditioned systems are rejected rather than silently regularized. Values that cannot be represented within the supported numerical range raise explicit numerical or geometry errors.
+
+JSON serialization can preserve the exact stored float64 representation using hexadecimal strings. Unit metadata is descriptive; it does not perform automatic conversion.
