@@ -2,79 +2,165 @@
 
 ## Installation
 
-Python 3.10 or newer is required. Install the release with `python -m pip install sectalix`; from a source checkout use `python -m pip install -e .`. For plots use `python -m pip install "sectalix[plots]"` or the source extra. NumPy is the sole required runtime dependency. Matplotlib is optional and lazily loaded. Tests additionally need pytest. Both `sectalix` and `python -m sectalix` invoke the same entry point. `sectalix --version` prints `Sectalix 1.0.1`; `--help` and each subcommand's `--help` describe accepted options.
+Python 3.10 or newer is required. Install the release with:
+
+```bash
+python -m pip install sectalix
+```
+
+From a source checkout:
+
+```bash
+python -m pip install -e .
+```
+
+For plotting support:
+
+```bash
+python -m pip install "sectalix[plots]"
+```
+
+NumPy is the only required runtime dependency. Matplotlib is optional and loaded only when plotting is requested. Both `sectalix` and `python -m sectalix` use the same command-line entry point.
+
+`sectalix --version` prints the installed Sectalix version. `--help` and each subcommand's `--help` show the accepted options.
 
 ## Input and output rules
 
-Section input is a v0.8 canonical JSON document or supported ASCII DXF, selected by case-insensitive filename extension. A positional `-` means UTF-8 JSON stdin, not DXF. See [the frozen I/O guide](V0_8_USAGE.md) for schema, supported entities and thickness mapping. Coordinates and loads must use a coherent unit system; JSON metadata is not a conversion request.
+Section input is either a supported v0.8 JSON document or a supported ASCII DXF file, selected by filename extension. A positional `-` means UTF-8 JSON from standard input, not DXF.
 
-All four commands accept `--output PATH`, `--overwrite` and `--thickness VALUE`. Output is required for plot and convert-dxf. Thickness is a fallback for DXF entities without an assigned thickness, in source length units; entity/layer resolution follows the existing importer. It must be positive. Normal section-consuming commands accept `--dxf-unit UNIT` (default mm), used as both source and target unit. convert-dxf instead has independent source and target options. Units are m, mm, cm, in, ft or unspecified; incompatible unspecified conversions are rejected by the importer.
+See the [v0.8 interchange guide](V0_8_USAGE.md) for the JSON schema, supported DXF entities, and thickness mapping.
 
-Existing targets are protected unless --overwrite is explicit. Outputs may not replace the input section or loads file even with --overwrite. Duplicate output paths are rejected before publication. Individual files use atomic publication; the entire multi-file analysis is not a transaction. Completed plots can remain if a later output fails. Ordinary output parents must exist; --plots-dir may create its directory tree.
+Coordinates and loads must use a consistent unit system. JSON unit metadata is descriptive and does not request automatic numerical conversion.
 
-Stdout contains only requested data, never progress messages. Diagnostics go to stderr. Numeric flags support negative scientific notation, including `--Mx -1e-2`. Nonfinite input and out-of-range conversion are rejected. No interactive window or GUI loop is started.
+The section-consuming commands support `--output PATH`, `--overwrite`, and `--thickness VALUE` where applicable. Plot and DXF-conversion commands require an explicit output target.
 
-## inspect
+Thickness is a fallback for DXF entities that do not receive thickness from a more specific mapping. It must be positive. Standard section-consuming commands accept `--dxf-unit UNIT`; `convert-dxf` provides separate source and target unit options.
 
-`sectalix inspect INPUT [--json] [--output PATH] [--dxf-unit mm] [--thickness VALUE] [--overwrite]`
+Existing targets are protected unless `--overwrite` is explicitly supplied. Outputs may not overwrite the input section or load file. Duplicate output paths are rejected before writing.
 
-The default human-readable output lists topology, node and segment counts, A, cx, cy, Ix, Iy, Ixy, I1, I2, theta_p (radians), J, sx, sy, Cw, total length and minimum/maximum segment thickness. Without --output, it goes to stdout. --output - also selects stdout.
+Individual output files are written atomically. A multi-file analysis is not a single transaction, so plots already written may remain if a later requested output fails.
 
---json produces a **v1.0 observation envelope**, not a new frozen v0.8 codec kind. Its format is sectalix-inspection, schema_version is 1.0, number_encoding is float64-hex, and properties contain F64-encoded values. It embeds an unmodified v0.8 document under `section`. Extract that member for subsequent section input; the whole inspection envelope is deliberately not accepted by the v0.8 decoder.
+Standard output contains requested data only. Diagnostics are written to standard error. Numeric options accept scientific notation, including negative values such as `--Mx -1e-2`. Non-finite or out-of-range inputs are rejected.
 
-Inspection requests all listed properties. A section whose shear center or warping calculation is singular or unrepresentable fails explicitly even if its area alone could be computed. The CLI does not invent absent properties or hide a failure as null.
+## `inspect`
 
-## analyze
+```text
+sectalix inspect INPUT [--json] [--output PATH] [--dxf-unit mm] [--thickness VALUE] [--overwrite]
+```
 
-`sectalix analyze INPUT [--loads LOADS.json] [load flags] [--output RESULT.json] [--stdout] [--plots-dir DIR] [--report REPORT.md] [--dxf-unit mm] [--thickness VALUE] [--overwrite]`
+The default human-readable output reports:
 
-Load flags are `--N`, `--Vx`, `--Vy`, `--Mx`, `--My`, `--Tsv`, `--B`, `--M-omega` and `--sigma-yield`. An explicit flag overrides only its corresponding loads-file field. Without a file, unspecified force/moment fields are zero and yield stress is absent. At least a file or one explicit flag is required; --N 0 is a valid zero-load request.
+- topology
+- node and segment counts
+- area
+- centroid
+- `Ix`, `Iy`, `Ixy`
+- principal moments and principal-axis angle
+- torsion constant `J`
+- shear-center coordinates
+- warping constant `Cw`
+- total centerline length
+- minimum and maximum segment thickness
 
-The loads document must be the AppliedLoads kind. Its length metadata must match the section; force metadata must match if the section specifies it. An unspecified section force label adopts the load document's label. No numerical rescaling occurs. Scalar flags use that same unit system. Section and loads cannot both consume stdin; --loads - is supported with a section filename.
+Without `--output`, the result is written to standard output. `--output -` also selects standard output.
 
-Output is the unchanged v0.8 StressRecoveryResult document, including exact profile coefficients and resultant fields. Without --output, JSON goes to stdout. --stdout additionally echoes JSON when a file output is chosen. This is not a second computation.
+`--json` produces a v1.0 inspection envelope. The envelope includes encoded property values and embeds the original v0.8 section document under `section`. The whole inspection envelope is not itself accepted as a section input; extract its `section` member for reuse.
 
---plots-dir saves geometry.png, shear_flow.png and stress_vm.png. The shear-flow image shows **transverse Vx/Vy flow**, not the sum of torsion and secondary warping effects. The stress image uses the complete recovered stress result. --report writes a Markdown calculation sheet and links the requested images relatively. Report creation requests full section properties and can therefore fail on an unavailable Cw even when a more limited calculation could succeed.
+Inspection requests the complete listed property set. If a requested derived quantity is singular or numerically unsupported, inspection fails explicitly instead of replacing that value with `null`.
 
-The report includes the timestamp with timezone, input path, units, assumptions, geometry, properties, all loads, maximum von Mises stress and location, yield multiplier, and recovered-minus-applied N/Mx/My/B. The yield multiplier is not regulatory certification. Reports differ by generation time; direct reporting API callers can supply an aware datetime for reproducibility.
+## `analyze`
 
-## plot
+```text
+sectalix analyze INPUT [--loads LOADS.json] [load flags] [--output RESULT.json] [--stdout] [--plots-dir DIR] [--report REPORT.md] [--dxf-unit mm] [--thickness VALUE] [--overwrite]
+```
 
-`sectalix plot INPUT --output FIGURE.png [--show-thickness | --no-show-thickness] [--show-axes] [--show-ids] [--show-shear-center] [--dxf-unit mm] [--thickness VALUE] [--overwrite]`
+Load options are:
 
-Only PNG and SVG file output is supported; binary stdout is not. Thickness bands default on. IDs show both nodes and segments. Axes show principal directions. Shear-center calculation is requested only by its option. Equal aspect ratio and frozen headless plotting behavior apply. Without Matplotlib, nonplot commands still work; a requested plot fails with code 2.
+- `--N`
+- `--Vx`
+- `--Vy`
+- `--Mx`
+- `--My`
+- `--Tsv`
+- `--B`
+- `--M-omega`
+- `--sigma-yield`
 
-## convert-dxf
+An explicit command-line load value overrides only the corresponding field from a load document. Without a load file, unspecified force and moment fields default to zero and yield stress remains unspecified.
 
-`sectalix convert-dxf INPUT.dxf --output SECTION.json [--source-unit mm] [--target-unit mm] [--thickness VALUE] [--section-kind auto|open|closed|mixed] [--overwrite]`
+At least a load file or one explicit load option must be supplied. An explicitly requested zero load, such as `--N 0`, is valid.
 
-The importer performs supported length conversion, validation and topology classification. Defaults are mm/mm/auto. --output - sends JSON to stdout. Input must be a DXF file. No CAD dependency, GUI, curve tessellation or unsupported entity approximation is introduced.
+A load document must decode as `AppliedLoads`. Its length metadata must be compatible with the section metadata, and force metadata must also be compatible when both are specified. No automatic numerical rescaling is performed.
 
-For a minimal input, create an ASCII DXF ENTITIES section containing a LINE on layer THICK_0.01, with group codes 10/20 for its start and 11/21 for its end. Valid mechanical inspection also requires nonsingular geometry: use the complete [open L example](https://github.com/berkeboranozdemir/Sectalix/blob/main/examples/sample_sections/open_l.dxf), not a single line. Examples are available in the repository, not installed by the wheel. From a source checkout, convert it to obtain a complete canonical JSON example:
+Section input and load input cannot both use standard input simultaneously. `--loads -` is supported when the section comes from a file.
 
-`sectalix convert-dxf examples/sample_sections/open_l.dxf --output section.json`
+The primary result is a v0.8 `StressRecoveryResult` document containing the analytical segment profiles and recovered resultant fields. Without `--output`, JSON is written to standard output. `--stdout` additionally echoes JSON when a file output is also requested.
 
-The resulting document can be passed unchanged to inspect/analyze. Canonical JSON represents float64 values as F64 hexadecimal strings; replacing them by ordinary JSON numbers is not valid. [The JSON schema](../schemas/sectalix-0.8.schema.json) specifies all required keys and rejection rules.
+`--plots-dir` writes:
+
+- `geometry.png`
+- `shear_flow.png`
+- `stress_vm.png`
+
+The shear-flow image represents transverse `Vx/Vy` flow. The stress image uses the full recovered stress result.
+
+`--report` writes a Markdown calculation sheet with section properties, loads, peak von Mises stress, elastic first-yield multiplier, resultant recovery information, and relative links to any requested plots.
+
+The elastic first-yield multiplier is not a code-based safety factor or regulatory certification.
+
+## `plot`
+
+```text
+sectalix plot INPUT --output FIGURE.png [--show-thickness | --no-show-thickness] [--show-axes] [--show-ids] [--show-shear-center] [--dxf-unit mm] [--thickness VALUE] [--overwrite]
+```
+
+PNG and SVG output are supported. Binary image output is not written to standard output.
+
+Thickness bands are enabled by default. IDs can be shown for nodes and segments. Principal directions and the shear center can be requested explicitly.
+
+Plots use equal aspect ratio and a headless rendering path. If Matplotlib is not installed, non-plotting commands remain available while a requested plot exits with an I/O/format error code.
+
+## `convert-dxf`
+
+```text
+sectalix convert-dxf INPUT.dxf --output SECTION.json [--source-unit mm] [--target-unit mm] [--thickness VALUE] [--section-kind auto|open|closed|mixed] [--overwrite]
+```
+
+The importer performs supported length conversion, centerline validation, and topology classification. Defaults are `mm` for source and target units and `auto` for topology classification.
+
+`--output -` writes JSON to standard output. Input must be a supported ASCII DXF file.
+
+The importer deliberately does not approximate unsupported CAD entities or act as a general CAD kernel. See the [interchange guide](V0_8_USAGE.md) for the supported subset.
+
+From a source checkout, a complete example is:
+
+```bash
+sectalix convert-dxf examples/sample_sections/open_l.dxf --output section.json
+```
+
+The resulting JSON can be supplied directly to `inspect` or `analyze`.
+
+Canonical v0.8 JSON stores supported float64 values as hexadecimal strings. Replacing those encoded fields with ordinary decimal JSON numbers does not satisfy the v0.8 format. The [JSON schema](../schemas/sectalix-0.8.schema.json) documents the required structure.
 
 ## Exit status
 
 | Code | Meaning | Typical cause |
 |---|---|---|
-| 0 | Success | Help, version or completed output |
-| 1 | Invocation | Unknown flag, missing load specification, colliding paths |
+| 0 | Success | Help, version, or completed output |
+| 1 | Invocation | Unknown option, missing load specification, colliding paths |
 | 2 | I/O or format | Missing file, malformed JSON, unit mismatch, missing Matplotlib |
-| 3 | Geometry | Negative thickness, invalid finite geometry |
-| 4 | Topology | Disconnected or invalid graph |
-| 5 | Singular mechanics | Unsupported nonzero bimoment on zero warping resistance |
+| 3 | Geometry | Invalid thickness or finite geometry |
+| 4 | Topology | Disconnected or unsupported graph |
+| 5 | Singular mechanics | Singular section quantity for the requested calculation |
 | 6 | Numerical range | Overflow or nonzero underflow |
 
-Exception category follows the frozen API; this interface does not reclassify unsupported geometry silently. Unexpected programming errors are not swallowed.
+Expected Sectalix exceptions are mapped to these categories. Unexpected programming errors are not silently swallowed or reclassified as valid engineering output.
 
 ## Automation examples
 
-Bash, with explicit failure propagation:
+Bash:
 
-```sh
+```bash
 set -e
 sectalix convert-dxf shape.dxf --output section.json --thickness 0.01
 cat section.json | sectalix analyze - --N 100 --Mx -1e-2 > result.json
@@ -91,4 +177,4 @@ python -m sectalix analyze section.json --N 100 --output result.json
 if ($LASTEXITCODE -ne 0) { throw "Sectalix analysis failed" }
 ```
 
-Use --output for encoding-independent UTF-8 disk publication, especially with legacy Windows shell redirection. No command uploads data or publishes packages.
+For reliable UTF-8 file output across shells, prefer `--output` when practical. Sectalix CLI commands do not upload analysis data or publish packages.
