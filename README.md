@@ -4,39 +4,45 @@
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-**Sectalix** is a Python library and command-line tool for thin-walled structural cross-sections. It evaluates closed-form centerline integrals in float64 for open, closed (multi-cell), and mixed topologies, without numerical quadrature or finite element meshing.
+**Sectalix** is a Python library and command-line tool for the analysis of thin-walled structural cross-sections represented by piecewise-straight centerline segments with constant thickness on each segment.
+
+The library combines closed-form straight-segment integration with classical thin-wall formulations for open, closed multi-cell, and mixed open/closed topologies. The aim is to keep the mathematical model transparent, testable, and useful for engineering studies without requiring finite-element meshing for section-level calculations.
 
 ![Sectalix Von Mises Stress Analysis](examples/sample_calculation/stress_vm.png)
 
 ---
 
-## Key Features
+## Capabilities
 
-- **Exact Analytical Integrals:** Closed-form line integrals for cross-sectional area $A$, centroid $C=(x_c, y_c)$, second moments of area ($I_x, I_y, I_{xy}$), principal properties ($I_1, I_2, \theta_p$), and Saint-Venant torsion constant $J$.
-- **Shear Flow & Shear Center:** Tree-equilibrium transverse shear flow for open sections, Bredt-Batho compatibility circulations for multi-cell closed sections, and shear center $S=(x_s, y_s)$ determination.
-- **Vlasov Warping Theory:** Continuous sectorial coordinate field $\omega^\ast(s)$ with zero-mean normalization and sectorial warping constant $C_w$.
-- **Stress Recovery & Peak Search:** Analytical stress profiles ($\sigma_{zz}, \tau_{\rm surface}, \sigma_{\rm vm}$) with polynomial root-finding for peak von Mises stress and elastic first-yield multiplier ($\lambda$), rather than sampled peak estimation.
-- **Zero Heavy Dependencies:** Core computation runs strictly on Python standard library and `numpy`. Plotting optionally utilizes `matplotlib`.
-- **Engineering CLI & Calculation Sheets:** Built-in command line interface (`sectalix`) with standard UNIX exit codes, streaming piping (`stdin`/`stdout`), and automated GitHub-Flavored Markdown Calculation Sheet generator.
-- **CAD & Lossless Interchange:** Exact IEEE-754 float64 hexadecimal JSON serialization and standalone ASCII DXF importer.
+- **Closed-form segment integration:** Area, centroid, second moments of area (`Ix`, `Iy`, `Ixy`), principal moments, and principal-axis orientation are evaluated directly from the straight centerline segments.
+- **Open-section shear flow and shear center:** Transverse shear flow is obtained from equilibrium on open tree topologies, followed by shear-center evaluation from the resulting torque.
+- **Closed and multi-cell sections:** Closed-cell compatibility and torsional response are handled with the Bredt-Batho thin-wall formulation.
+- **Mixed open/closed topology:** Sections containing both closed cells and open branches are decomposed and analyzed within the documented thin-wall model.
+- **Warping quantities:** Sectorial coordinates and the warping constant `Cw` are evaluated using Vlasov-type thin-wall kinematics and the conventions documented in the theory notes.
+- **Stress recovery:** Linear-elastic normal and shear stresses can be recovered for combined section resultants, including analytical search for the peak von Mises stress along each straight segment.
+- **Engineering interface:** A command-line interface supports section inspection, analysis, plotting, calculation reports, JSON interchange, and ASCII DXF import.
+- **Minimal runtime dependencies:** Core calculations use the Python standard library and `numpy`; `matplotlib` is optional for plotting.
 
 ---
 
 ## Installation
 
 ### From PyPI
+
 ```bash
 python -m pip install sectalix
 ```
 
-### From Source / Clone
+### From source
+
 ```bash
 git clone https://github.com/berkeboranozdemir/Sectalix.git
 cd Sectalix
 pip install -e .
 ```
 
-To enable headless visualization and technical plot generation:
+For plotting:
+
 ```bash
 pip install -e ".[plots]"
 ```
@@ -45,36 +51,30 @@ pip install -e ".[plots]"
 
 ## Quickstart
 
-### 1. Command-Line Interface (CLI)
-
-Sectalix provides a unified CLI for inspecting sections, converting CAD files, and solving stress recovery:
+### Command line
 
 ```bash
-# Inspect cross-section characteristics (Area, Centroid, Inertia, J, Cw)
+# Inspect section properties
 sectalix inspect examples/sample_sections/rectangle.dxf
 
-# Run full stress recovery analysis under external loads
+# Recover stresses for an applied load set
 sectalix analyze examples/sample_sections/rectangle.dxf \
   --N 10000 --Vy 5000 --Mx 250000 --sigma-yield 355 \
   --report calculation_report.md \
   --plots-dir ./output_plots
 
-# Directly render section geometry to PNG/SVG
+# Plot the imported centerline geometry
 sectalix plot examples/sample_sections/rectangle.dxf --output geometry.png
 ```
 
-The rectangle example is a 4 x 2 mm centerline box with thickness 0.01 mm,
-encoded by its `THICK_0.01` DXF layer. The CLI `--thickness` option is only a
-fallback for entities without mapped thickness; it does not override that layer.
-These small sample dimensions demonstrate the interface, not a practical design.
-Plot-producing commands require the optional `plots` installation above.
+The rectangle example is intentionally small and is included to demonstrate the interface rather than represent a practical design case. Plot-producing commands require the optional `plots` dependency.
 
-### 2. Python API
+### Python API
 
 ```python
 from sectalix import Node, Segment, Section, AppliedLoads
 
-# Define an open channel section (C-Channel: 50x100x50 mm, t=2 mm)
+# Open channel section: 50 x 100 x 50 mm, t = 2 mm
 n0 = Node(x=50.0, y=100.0)
 n1 = Node(x=0.0, y=100.0)
 n2 = Node(x=0.0, y=0.0)
@@ -86,48 +86,69 @@ section = Section([
     Segment(p1=n2, p2=n3, t=2.0),
 ])
 
-# Access geometric & torsional properties
 print(f"Area: A = {section.area:.2f} mm^2")
 print(f"Centroid: C = ({section.cx:.2f}, {section.cy:.2f}) mm")
 print(f"Inertia: Ix = {section.Ix:.2f}, Iy = {section.Iy:.2f} mm^4")
-print(f"Saint-Venant Torsion: J = {section.J:.2f} mm^4")
-print(f"Warping Constant: Cw = {section.Cw:.2f} mm^6")
+print(f"Saint-Venant torsion constant: J = {section.J:.2f} mm^4")
+print(f"Warping constant: Cw = {section.Cw:.2f} mm^6")
 
-# Recover stresses under combined loads (Axial + Shear + Bending)
-loads = AppliedLoads(N=10000.0, Vy=5000.0, Mx=250000.0, sigma_yield=355.0)
+loads = AppliedLoads(
+    N=10000.0,
+    Vy=5000.0,
+    Mx=250000.0,
+    sigma_yield=355.0,
+)
 results = section.calculate_stresses(loads)
 
-print(f"Peak Von Mises: {results.max_sigma_vm:.2f} MPa")
-print(f"Elastic Load Factor: lambda = {results.load_factor:.3f}")
+print(f"Peak von Mises stress: {results.max_sigma_vm:.2f} MPa")
+print(f"Elastic first-yield load factor: {results.load_factor:.3f}")
 ```
 
 ---
 
-## Topology & Capabilities Matrix
+## Supported section models
 
-| Cross-Section Category | Class | Shear Flow ($q$) | Torsion ($J$) | Warping ($C_w$) | Stress Recovery |
-|---|---|---|---|---|---|
-| **Open Branched Sections** (I, C, L, T, Z, Hat) | `Section` | Tree Balance | $\frac{1}{3}\sum L_i t_i^3$ | $\int_A (\omega^\ast)^2 dA$ | $\sigma_{zz}, \tau, \sigma_{\rm vm}$ |
-| **Closed Multi-Cell Sections** (Box girders, Tubes) | `ClosedSection` | Bredt-Batho | $2\mathbf{A}_c^T \boldsymbol{\phi}$ | Compatibility $\omega^\ast$ | $\sigma_{zz}, \tau, \sigma_{\rm vm}$ |
-| **Mixed Topology** (Cells with open fins/branches) | `MixedSection` | Tarjan Decomposition | $J_{\rm BB} + J_{\rm open}$ | Continuous $\omega^\ast$ | $\sigma_{zz}, \tau, \sigma_{\rm vm}$ |
+| Section model | Shear flow | Torsion | Warping | Stress recovery |
+|---|---|---|---|---|
+| **Open branched sections** (I, C, L, T, Z, hat) | Open-tree equilibrium | Thin-strip Saint-Venant approximation | Sectorial-coordinate formulation | Yes |
+| **Closed multi-cell sections** (boxes, tubes, box girders) | Closed-cell compatibility | Bredt-Batho | Compatible sectorial field | Yes |
+| **Mixed sections** (closed cells with open branches) | Combined open/closed formulation | Closed-cell + open-branch model | Continuous sectorial field | Yes |
 
 ---
 
-## Engineering Assumptions & Scope
+## Model assumptions and limitations
 
-- **Thin-Wall Centerline Model:** Geometry is represented by 1D straight segments along wall centerlines with uniform segment thickness $t$.
-- **Omitted Effects:** Corner fillets, root radii, and local corner overlap volumes are neglected. Plate through-thickness transverse shear deformation is omitted.
-- **Elastic Scope:** Sectalix calculates linear-elastic section properties and stress distributions. It does not perform plastic hinge analysis, local/global buckling verification, or structural design code checks (AISC/Eurocode). The elastic load factor is a first-yield indicator, not a regulatory safety certification.
+Sectalix is a **thin-wall centerline model**, not a general solid-section or shell finite-element solver.
+
+- Geometry is represented by straight wall-centerline segments.
+- Each segment has a constant, positive thickness.
+- The formulation assumes a homogeneous, linear-elastic thin wall.
+- Corner fillets, root radii, local corner overlap volumes, and detailed through-thickness geometry are not represented.
+- The implemented torsion, shear-flow, and warping relations are thin-wall engineering formulations; they are not full finite-thickness elasticity solutions.
+- Local or global buckling, nonlinear material response, fatigue, connection behavior, and structural design-code checks are outside the scope of the library.
+- The reported elastic load factor is a first-yield indicator, not a code-based safety factor or design certification.
+
+Within these assumptions, the geometry may be non-standard, asymmetric, branched, multi-cell, or mixed, provided that it can be represented by a valid piecewise-straight centerline network supported by the relevant section class.
+
+---
+
+## Verification
+
+The numerical implementation is checked with analytical benchmark cases, high-precision or independently assembled reference calculations where appropriate, rigid-body and orientation invariance tests, adversarial numerical cases, and regression tests.
+
+Continuous integration runs the test suite on Ubuntu, Windows, and macOS with Python 3.10 through 3.13. Passing tests provide evidence for the documented model and cases; they are not a proof of correctness for every possible geometry or engineering application.
+
+See **[Verification Benchmarks](docs/VERIFICATION_BENCHMARKS.md)** for the benchmark definitions and limitations.
 
 ---
 
 ## Documentation
 
-- **[Theory & Conventions](docs/THEORY_AND_CONVENTIONS.md):** Complete mathematical derivations, coordinate frames, right-hand rules, and sign conventions.
-- **[CLI Reference](docs/CLI_REFERENCE.md):** Comprehensive guide to CLI subcommands, options, piping, and exit codes.
-- **[Verification Benchmarks](docs/VERIFICATION_BENCHMARKS.md):** Summary of analytical and independent oracle benchmarks.
-- **[Developer Guide](START_HERE.md):** Development setup, repository architecture, and contributor rules.
-- **[Release & PyPI Guide](docs/RELEASE_GUIDE.md):** Distribution packaging and release procedures.
+- **[Theory and Conventions](docs/THEORY_AND_CONVENTIONS.md)** — mathematical model, coordinate system, signs, and governing equations.
+- **[Verification Benchmarks](docs/VERIFICATION_BENCHMARKS.md)** — analytical and independent verification cases.
+- **[CLI Reference](docs/CLI_REFERENCE.md)** — command-line usage, inputs, outputs, and exit codes.
+- **[Developer Guide](START_HERE.md)** — local setup, repository structure, and testing.
+- **[Project Scope](PROJECT_SPEC.md)** — implemented scope and explicit limitations.
 
 ---
 
