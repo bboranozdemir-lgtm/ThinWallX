@@ -1,8 +1,8 @@
 name: One-time public source cleanup
 
 on:
-  push:
-    branches: [cleanup/public-academic]
+  pull_request:
+    branches: [main]
 
 permissions:
   contents: write
