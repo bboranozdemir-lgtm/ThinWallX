@@ -122,6 +122,7 @@ Sectalix is a **thin-wall centerline model**, not a general solid-section or she
 
 - Geometry is represented by straight wall-centerline segments.
 - Each segment has a constant, positive thickness.
+- Curved walls are not represented exactly; they must first be approximated by a piecewise-straight centerline model.
 - The formulation assumes a homogeneous, linear-elastic thin wall.
 - Corner fillets, root radii, local corner overlap volumes, and detailed through-thickness geometry are not represented.
 - The implemented torsion, shear-flow, and warping relations are thin-wall engineering formulations; they are not full finite-thickness elasticity solutions.
