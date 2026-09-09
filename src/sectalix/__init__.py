@@ -1,4 +1,4 @@
-"""Sectalix — Numerical analysis tool for arbitrary thin-walled structural sections."""
+"""Sectalix — analysis tools for piecewise-straight thin-walled structural sections."""
 
 from __future__ import annotations
 
