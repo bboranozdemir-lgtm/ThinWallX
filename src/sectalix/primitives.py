@@ -1,7 +1,7 @@
-"""Geometric primitives: Node and Segment dataclasses.
+"""Geometric primitives for straight thin-wall centerline segments.
 
-All line integrals implemented herein follow the exact closed-form straight-segment
-formulation specified in Sectalix ACTIVE_PHASE.md.
+The line integrals in this module use the closed-form straight-segment identities
+documented in ``docs/THEORY_AND_CONVENTIONS.md``.
 """
 
 from __future__ import annotations
@@ -72,7 +72,7 @@ class Segment:
             raise GeometryError(
                 f"Segment thickness must be strictly positive (t > 0). Got t={self.t} (id={self.id})."
             )
-        # Reject only an exactly collapsed float representation.  A dimensional
+        # Reject only an exactly collapsed float representation. A dimensional
         # absolute cutoff would make otherwise valid geometry depend on the
         # caller's choice of units; topological near-coincidence is handled by
         # Section.node_tolerance instead.
@@ -100,62 +100,42 @@ class Segment:
         return self.t * self.length
 
     def int_x(self) -> float:
-        """Exact line integral: \\int_L x ds = L * (x1 + x2) / 2.
+        """Closed-form line integral: \\int_L x ds = L * (x1 + x2) / 2.
 
-        Derivation:
-            Parameterize line s in [0, L]: x(s) = x1 + (x2 - x1)*s/L.
-            \\int_0^L x(s) ds = x1*L + (x2 - x1)*L/2 = L*(x1 + x2)/2.
-            Source: Sectalix ACTIVE_PHASE.md, Exact Segment Integrals.
+        Parameterizing the straight segment with s in [0, L], x(s) varies
+        linearly between x1 and x2, giving the stated expression directly.
         """
         return self.length * (self.p1.x + self.p2.x) / 2.0
 
     def int_y(self) -> float:
-        """Exact line integral: \\int_L y ds = L * (y1 + y2) / 2.
+        """Closed-form line integral: \\int_L y ds = L * (y1 + y2) / 2.
 
-        Derivation:
-            Parameterize line s in [0, L]: y(s) = y1 + (y2 - y1)*s/L.
-            \\int_0^L y(s) ds = y1*L + (y2 - y1)*L/2 = L*(y1 + y2)/2.
-            Source: Sectalix ACTIVE_PHASE.md, Exact Segment Integrals.
+        Parameterizing the straight segment with s in [0, L], y(s) varies
+        linearly between y1 and y2, giving the stated expression directly.
         """
         return self.length * (self.p1.y + self.p2.y) / 2.0
 
     def int_x2(self) -> float:
-        """Exact line integral: \\int_L x^2 ds = (L / 3) * (x1^2 + x1*x2 + x2^2).
+        """Closed-form line integral: \\int_L x^2 ds = (L / 3) * (x1^2 + x1*x2 + x2^2).
 
-        Derivation:
-            With x(s) = x1*(1 - s/L) + x2*(s/L):
-            \\int_0^L (1 - s/L)^2 ds = L/3,
-            \\int_0^L 2*(1 - s/L)*(s/L) ds = L/3,
-            \\int_0^L (s/L)^2 ds = L/3.
-            Expanding (x1*(1-s/L) + x2*(s/L))^2 yields:
-            (L/3)*(x1^2 + x1*x2 + x2^2).
-            Source: Sectalix ACTIVE_PHASE.md, Exact Segment Integrals.
+        This follows by squaring the linear endpoint interpolation for x(s)
+        and integrating the resulting quadratic polynomial over [0, L].
         """
         x1, x2 = self.p1.x, self.p2.x
         return (self.length / 3.0) * (x1 * x1 + x1 * x2 + x2 * x2)
 
     def int_y2(self) -> float:
-        """Exact line integral: \\int_L y^2 ds = (L / 3) * (y1^2 + y1*y2 + y2^2).
-
-        Derivation:
-            Analogous to int_x2 with y coordinates.
-            Source: Sectalix ACTIVE_PHASE.md, Exact Segment Integrals.
-        """
+        """Closed-form line integral: \\int_L y^2 ds = (L / 3) * (y1^2 + y1*y2 + y2^2)."""
         y1, y2 = self.p1.y, self.p2.y
         return (self.length / 3.0) * (y1 * y1 + y1 * y2 + y2 * y2)
 
     def int_xy(self) -> float:
-        """Exact line integral: \\int_L xy ds = (L / 6) * (2*x1*y1 + x1*y2 + x2*y1 + 2*x2*y2).
+        """Closed-form line integral: \\int_L xy ds.
 
-        Derivation:
-            With x(s) = x1*(1 - s/L) + x2*(s/L) and y(s) = y1*(1 - s/L) + y2*(s/L):
-            \\int_0^L (1 - s/L)^2 ds = L/3,
-            \\int_0^L (1 - s/L)*(s/L) ds = L/6,
-            \\int_0^L (s/L)^2 ds = L/3.
-            Combining terms:
-            x1*y1*(L/3) + (x1*y2 + x2*y1)*(L/6) + x2*y2*(L/3)
-            = (L/6) * (2*x1*y1 + x1*y2 + x2*y1 + 2*x2*y2).
-            Source: Sectalix ACTIVE_PHASE.md, Exact Segment Integrals.
+        For linearly interpolated x(s) and y(s),
+
+        \\int_L xy ds = (L / 6) *
+        (2*x1*y1 + x1*y2 + x2*y1 + 2*x2*y2).
         """
         x1, y1 = self.p1.x, self.p1.y
         x2, y2 = self.p2.x, self.p2.y
