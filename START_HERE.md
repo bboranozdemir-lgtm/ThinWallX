@@ -1,52 +1,73 @@
-# Sectalix — Developer & Contributor Guide
+# Sectalix — Developer Guide
 
-Welcome to Sectalix, a production-quality numerical analysis library for arbitrary thin-walled structural cross-sections.
+This guide describes the local development setup and repository layout for Sectalix.
 
-## Project Status
-
-Sectalix has completed its initial v0.1–v1.0 roadmap. The numerical core (v0.1–v0.8) and CLI/reporting modules (v1.0) are formally **FROZEN** with 559 regression tests passing at 100% with zero warnings (`-W error`).
-
-## Quick Developer Setup
+## Setup
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/berkeboranozdemir/Sectalix.git
    cd Sectalix
    ```
 
 2. Create and activate a virtual environment:
+
    ```bash
    python -m venv .venv
-   # Windows:
+   ```
+
+   Windows:
+
+   ```bash
    .venv\Scripts\activate
-   # Linux/macOS:
+   ```
+
+   Linux/macOS:
+
+   ```bash
    source .venv/bin/activate
    ```
 
-3. Install in editable development mode with test and plotting extras:
+3. Install the package with test and plotting dependencies:
+
    ```bash
    python -m pip install -e ".[test,plots]"
    python -m pip install "setuptools>=77.0.3" wheel
    ```
 
-4. Run the full test suite with strict error checking:
+4. Run the test suite:
+
    ```bash
    python -m pytest -W error
    ```
 
 ## Repository Structure
 
-- `src/sectalix/`: Core numerical analysis library, CLI, and reporting modules.
-- `tests/`: 559 comprehensive unit, benchmark, and regression tests.
-- `docs/`: Technical reference documentation:
-  - `docs/THEORY_AND_CONVENTIONS.md`: Formulations, sign conventions, and coordinate rules.
-  - `docs/CLI_REFERENCE.md`: CLI command options, subcommands, and UNIX piping.
-  - `docs/VERIFICATION_BENCHMARKS.md`: Analytical and independent oracle verification.
-  - `docs/archive/`: Historical phase specifications and implementation audit reports.
-- `examples/`: Sample section models, analysis outputs, and scripts.
+- `src/sectalix/` — numerical models, topology handling, stress recovery, I/O, CLI, and reporting
+- `tests/` — unit, benchmark, invariance, validation, packaging, and regression tests
+- `docs/THEORY_AND_CONVENTIONS.md` — mathematical model and sign conventions
+- `docs/VERIFICATION_BENCHMARKS.md` — benchmark definitions and verification notes
+- `docs/CLI_REFERENCE.md` — command-line interface reference
+- `docs/V0_8_USAGE.md` — interchange-format details retained for compatibility
+- `schemas/` — JSON schema definitions
+- `examples/` — sample DXF sections and generated calculation outputs
 
-## Contribution Guidelines
+## Development Principles
 
-1. **Frozen Mechanics:** Core analytical models must not be altered without explicit validation against analytical benchmarks.
-2. **Strict Quality Gates:** All pull requests must pass the complete 12-job cross-platform CI matrix (`pytest -W error` on Ubuntu, Windows, macOS across Python 3.10–3.13).
-3. **No Heavy Dependencies:** Runtime dependencies remain strictly minimal (`numpy` and standard library, optional `matplotlib` for plotting). No heavy CAD, mesh, or symbolic algebra packages.
+Changes to the numerical mechanics should be accompanied by a clear derivation or reference and an independent verification case whenever practical.
+
+Please keep the following points in mind:
+
+- preserve explicit units and sign conventions
+- avoid silent numerical fallbacks
+- add regression tests for corrected numerical behavior
+- distinguish exact straight-segment integration from thin-wall engineering approximations
+- document new modeling assumptions and limitations
+- keep optional visualization separate from the numerical core
+
+## Continuous Integration
+
+The GitHub Actions test matrix runs on Ubuntu, Windows, and macOS using Python 3.10 through 3.13. Warnings are treated as errors during the test run.
+
+Cross-platform tests reduce the risk of implementation regressions, but they do not replace engineering validation against independent reference problems.
