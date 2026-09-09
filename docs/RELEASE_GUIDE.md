@@ -1,89 +1,71 @@
-# Sectalix v1.0.1 release and Trusted Publishing guide
+# Sectalix release guide
 
-The historical ThinWallX v1.0.0 tag remains unchanged. Sectalix v1.0.1 is the
-rename/release-preparation version; create its tag only after review. Protect main
-and release tags on GitHub.
+This document summarizes the release workflow for the Sectalix Python package.
 
-## Local verification and CI
+## Local verification
 
-Run `python -m pytest -W error`: the frozen v1.0 core plus the v1.0.1
-compatibility regression contains 560 tests.
-The CI workflow targets Ubuntu, Windows and macOS with Python 3.10–3.13 (12 jobs).
-These hosted jobs can only be confirmed after pushing to GitHub; a local Windows
-run does not establish that all matrix combinations pass.
+Before preparing a release, run the complete test suite:
 
-The tag-triggered publish.yml first calls the same full matrix, then builds fresh
-wheel/sdist into release-dist (not the tracked historical dist directory), checks
-tag/version equality and runs strict Twine metadata validation. Verified archives
-are retained as a GitHub Actions artifact for 30 days. There is intentionally no
-automatic upload is performed locally; the tag workflow uses OIDC only after the
-protected `pypi` environment is approved.
-
-The packaging tests invoke setuptools directly, so CI installs that backend and
-wheel explicitly in addition to the requested editable test/plot extras. This is
-build/test tooling, not a new application dependency.
-
-The minimum backend is setuptools 77.0.3, which supports the SPDX license-string
-format. Checkout and setup-python use their Node 24-based v6 actions; reverting
-to checkout v4/setup-python v5 is not a migration away from Node 20.
-
-Project-wide deprecation suppression is disabled. The packaging subprocess exempts
-only the known distutils import deprecation message on Windows Python 3.10/3.11.
-All other messages remain errors. Passing means no unsuppressed warnings; it does
-not imply that an exempt dependency warning was never emitted.
-
-The residual-torque regression uses 32 machine epsilons times the sum of absolute
-torque terms, without an absolute floor, and exercises three length and three load
-scales. These narrow test maintenance changes were explicitly authorized without
-changing the numerical core. Platform rounding differences do not by themselves
-prove that FMA caused the original discrepancy.
-
-## Connect a new GitHub repository
-
-1. Create an empty repository in your GitHub account. Do not initialize it with a
-   README, license or gitignore, because local history already contains these project files.
-2. In this project directory replace YOUR_ACCOUNT with the actual account:
-
-```sh
-git remote add origin https://github.com/YOUR_ACCOUNT/Sectalix.git
-git push -u origin main --tags
+```bash
+python -m pytest -W error
 ```
 
-3. Check Actions: CI and Release artifacts. Do not describe the matrix as green
-   until all jobs finish successfully. Download the release artifact before it expires.
-4. Configure branch/ruleset protection, restrict updates/deletions of v* tags and
-   require successful CI for changes. Do not force-move v1.0.0 after distribution.
+The continuous-integration workflow runs the same test suite on Ubuntu, Windows, and macOS with Python 3.10 through 3.13.
 
-## PyPI: separate publication decision
+A successful local run is useful but does not replace the cross-platform CI matrix.
 
-Sectalix is officially distributed under the MIT License (see `LICENSE` in the repository
-root and `license = "MIT"` in `pyproject.toml`). Ensure the package name ownership is confirmed
-on PyPI before first upload. Any post-tag metadata or release updates follow semantic versioning.
+## Build distributions
 
-Trusted Publishing is the required release path. Configure the publisher below,
-approve the protected `pypi` environment, and let the tag workflow publish the
-verified artifact. Manual upload is only a fallback after an explicit release
-review; never use arbitrary files from a working directory. For a manual dry run:
+Sectalix uses the setuptools PEP 517 backend. Build tooling should include a compatible setuptools version and `wheel`.
 
-```sh
-python -m pip install twine
-python -m twine check --strict release-dist/*
-python -m twine upload --repository testpypi release-dist/*
-# Only after explicit publication review:
-python -m twine upload release-dist/*
-```
+For a manual local build, use a clean environment and create both a wheel and a source distribution. The resulting archives should be checked for:
 
-Supply credentials through Twine's secure prompting/keyring mechanism, never as
-committed text. TestPyPI and PyPI are separate accounts/credentials. Uploaded PyPI
-version filenames cannot simply be replaced; review before uploading.
+- the expected package version
+- the `sectalix` console entry point
+- packaged theory, CLI, verification, and schema files
+- absence of obsolete package paths
+- successful installation into a clean temporary environment
 
-The publishing job uses a protected `pypi` GitHub Environment and
-`id-token: write`. Configure required reviewers before creating the tag. On PyPI,
-register a Trusted Publisher for owner `berkeboranozdemir`, repository `Sectalix`,
-workflow `.github/workflows/publish.yml`, and environment `pypi`.
+The repository packaging tests exercise these checks automatically.
 
-Official references:
+## GitHub Actions publication
 
-- [GitHub Python CI](https://docs.github.com/en/actions/tutorials/build-and-test-code/python)
-- [Python Packaging publication guide](https://packaging.python.org/en/latest/guides/publishing-package-distribution-releases-using-github-actions-ci-cd-workflows/)
-- [PyPI Trusted Publishing](https://docs.pypi.org/trusted-publishers/using-a-publisher/)
+The repository contains a tag-triggered publication workflow. The intended release sequence is:
+
+1. Ensure the release commit is on `main` and CI is green.
+2. Confirm that the package version in `pyproject.toml` matches the intended release tag.
+3. Create and push the release tag.
+4. Allow the workflow to rebuild the distributions from the tagged source.
+5. Review the package metadata and workflow result before publication.
+
+The publication workflow uses GitHub's OpenID Connect / Trusted Publishing path rather than storing a long-lived PyPI API token in the repository.
+
+## Versioning and compatibility
+
+Sectalix v1.0.1 followed the earlier ThinWallX naming used during development. The package, imports, CLI, and public repository use the Sectalix name.
+
+The v0.8 JSON wire-format identifier `"format": "thinwallx"` is retained intentionally so that previously created files remain readable. Changing that identifier would be a separate interchange-format compatibility decision rather than a cosmetic rename.
+
+## Release checks
+
+Before publishing a new version, verify at minimum:
+
+- `python -m pytest -W error` passes locally
+- the GitHub Actions test matrix passes
+- package metadata matches the intended version
+- wheel and source distribution build successfully
+- a clean environment can install the built wheel and invoke `sectalix --version`
+- documentation links resolve
+- examples used in the README still match the current public API
+- no generated local files, credentials, or development-only notes are included in the release
+
+## Notes on numerical changes
+
+A packaging or documentation release should not silently change numerical mechanics. If a release modifies section-analysis formulas, topology logic, numerical tolerances, or stress recovery, the change should include:
+
+- a clear technical explanation
+- a regression test for the previous failure or limitation
+- an independent benchmark or reference case where practical
+- an update to the theory or verification documentation when the public model changes
+
+This separation helps distinguish release engineering changes from changes to the underlying mechanics.
