@@ -1,4 +1,4 @@
-"""Headless deterministic technical plots; mechanics remain in frozen evaluators.
+"""Headless technical plotting for Sectalix analysis results.
 
 All dimensional quantities are normalized before passing to matplotlib.
 Rational local differences preserve represented coordinates at large origins.

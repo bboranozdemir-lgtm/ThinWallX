@@ -1,4 +1,4 @@
-"""Mixed open-closed Saint-Venant torsion and warping mechanics (Sectalix v0.6).
+"""Mixed open-closed Saint-Venant torsion and warping mechanics.
 
 Implements:
 1. Hybrid Saint-Venant torsion constant:

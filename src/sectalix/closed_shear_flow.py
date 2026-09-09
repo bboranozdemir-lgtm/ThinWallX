@@ -1,8 +1,8 @@
-"""Closed-section transverse shear-flow analysis (Sectalix v0.5).
+"""Closed-section transverse shear-flow analysis.
 
-Implements the exact thin-walled closed-section formulation:
+Implements the documented thin-wall closed-section formulation:
 1. Virtual cut-open topology preserving 100% of physical material.
-2. Particular basic shear flow q_b(s) via accepted v0.2 open-tree mechanics.
+2. Particular basic shear flow q_b(s) via the open-tree shear-flow solver.
 3. Compatibility vector b_c = sum_i B_ci \\int (q_{b,i}/t_i) ds.
 4. Direct solve of H * q_0 = -b for redundant cell circulations q_0.
 5. Assembly of continuous physical shear flow q_i(s) = q_{b,i}(s) + sum_c B_ci * q_{0,c}.
@@ -362,7 +362,7 @@ def calculate_closed_shear_flow(
 
         chord_to_cut_pieces[s_idx] = (piece_a_idx, piece_b_idx)
 
-    # 5. Solve basic cut-open shear flow q_b using exact accepted v0.2 mechanics
+    # 5. Solve basic cut-open shear flow q_b using exact mechanics
     ref_x = min(n.x for n in canonical_nodes)
     ref_y = min(n.y for n in canonical_nodes)
 

@@ -1,4 +1,4 @@
-"""MixedSection class representing mixed open-closed thin-walled cross sections (Sectalix v0.6)."""
+"""MixedSection for mixed open-closed thin-walled cross-sections."""
 
 from __future__ import annotations
 

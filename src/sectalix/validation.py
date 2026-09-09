@@ -1,4 +1,4 @@
-"""Input and topology validation for Sectalix v0.1."""
+"""Input geometry and topology validation for Sectalix sections."""
 
 from __future__ import annotations
 

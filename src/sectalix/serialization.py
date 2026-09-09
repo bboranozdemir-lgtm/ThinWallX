@@ -1,4 +1,4 @@
-"""Strict, lossless v0.8 document codec. See ACTIVE_PHASE_v0.8.md §2.
+"""Strict v0.8 document codec with lossless float64 representation.
 
 Float hex strings preserve binary64 bits; typed IDs never become JSON keys.
 No geometry repair or executable object deserialization is performed.
